@@ -16,6 +16,7 @@
 
 struct tcp_data* ptcp_server;
 
+/*create tcp server*/
 int tcp_server_create(void* pdata)
 {
 	int retval = -1;
@@ -95,21 +96,45 @@ void* tcp_server_conn(void* pdata){
 			pthread_exit(NULL);
 		}
 
-		CLT_INFO_T* clt_item = malloc(sizeof(CLT_INFO_T));
-		if(clt_item == NULL){
+		CLT_INFO_T* pclt_item = malloc(sizeof(CLT_INFO_T));
+		if(pclt_item == NULL){
 			perror("allocate client structure memory failed");
 			pthread_exit(NULL);
 		}
-		bzero(clt_item, sizeof(CLT_INFO_T));
+		bzero(pclt_item, sizeof(CLT_INFO_T));
 
-		clt_item->ci_cfd = clt_fd;
-		sem_init(&clt_item->ci_sem,0,0);
-		gettimeofday(&clt_item->ci_conn_time, NULL);
+		clt_init(pclt_item);
+		pclt_item->ci_cfd = clt_fd;
 
-		tcp_server_clt_add(ptcp_data, clt_item);
+		if(0 != tcp_server_clt_add(ptcp_data, clt_item)){
+			printf("add client failed");
+			clt_release(pclt_item);
+			if(pclt_item){
+				free(pclt_item);
+				pclt_item = NULL;
+			}
+		}
 	}
 }
 
+void clt_init(CLT_INFO_T* pclt){
+	if(NULL == pclt){
+		return;
+	}
+	sem_init(pclt->ci_sem,0,0);
+	gettimeofday(&pclt->ci_conn_time, NULL);
+}
+
+void clt_release(CLT_INFO_T* pclt){
+	if(NULL == pclt){
+		return;
+	}	
+
+	sem_close(pclt->ci_sem);
+	if(pclt->ci_cfd){
+		close(pclt->ci_cfd);	//close client sockfd
+	}
+}
 int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	CLT_INFO_T* clt_temp = NULL;
 	if(clt_item == NULL){
@@ -130,7 +155,12 @@ int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	while(clt_temp!=NULL){
 		clt_temp = clt_temp->next;
 	}
+
 	clt_temp = clt_item;
+
+	FD_SET(clt_item->ci_cfd, &pdata->td_recv_fds);
+	FD_SET(clt_item->ci_cfd, &pdata->td_snd_fds);
+
 	pdata->td_cur_clt_num++;
 }
 
