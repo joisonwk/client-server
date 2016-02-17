@@ -24,7 +24,7 @@ typedef struct process_method{
 } PROCESS_METHOD_T;
 
 /*default process*/
-PROCESS_EXTERN int process_default(const char* rcvdata,char* snddata);
+PROCESS_EXTERN int id_process(const char* in,char* out);
 
 /*process init*/
 PROCESS_EXTERN int process_init(void);

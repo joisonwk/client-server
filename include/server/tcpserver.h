@@ -33,6 +33,7 @@ typedef struct clt_info {
 } CLT_INFO_T;
 
 struct ts_data{
+	sem_t td_lock;
 	int td_sfd; //server socket fd
 	struct ts_dev td_dev;
 	pthread_t td_conn_pid;	
@@ -41,6 +42,9 @@ struct ts_data{
 
 	CLT_INFO_T* td_clts_head;	//clients conn info
 	unsigned int td_cur_clt_num;	//current conn number
+	time_t td_clt_tm_threshold;	//client connect timeout threshold
+	#define DEFAULT_THRESHOLD	20 
+	#define MAX_THRESHOLD		600	//10 mins
 	fd_set td_recv_fds;	//client read fd_set
 	fd_set td_snd_fds;
 };
@@ -49,6 +53,7 @@ struct ts_dev {
 	unsigned short port;
 	unsigned int max_conn;
 	int domain;
+	time_t tm_threshold;
 };
 
 TCPSERVER_EXTERN int tcp_server_init(void* pdev);
@@ -56,12 +61,19 @@ TCPSERVER_EXTERN void tcp_server_exit(void);
 
 /*create the server socket*/
 static int tcp_server_create(void* pdata);
-/*destroy the tcp server*/
-static int tcp_server_destroy(void* pdata);
+static int tcp_server_lock_init(struct ts_data* pdata);
+static int tcp_server_lock_get(struct ts_data* pdata);
+static void tcp_server_lock_release(struct ts_data* pdata);
+
+static void clt_init(CLT_INFO_T* pclt);
+static void clt_release(CLT_INFO_T* pclt);
+static int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt);
+/*tcp connects stack fresh*/
+static int tcp_server_connfresh(struct ts_data* pdata);
+
+
 /*into receive moding*/
 static void* tcp_server_conn(void* pdata);
-/*tcp connects stack fresh*/
-static int tcp_server_connfresh(void* pdata);
 /*client receive data*/
 static void* tcp_server_recv(void* pdata);
 /*process the client data*/
