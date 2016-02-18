@@ -119,17 +119,20 @@ void* tcp_server_conn(void* pdata){
 	}
 }
 
+/*for change the lock type*/
 /*ts_lock_init*/
 void tcp_server_lock_init(struct ts_data* pdata){
-
+	sem_init(&pdata->td_lock,0,1);
 }
 
 /*ts_data get lock*/
-int tcp_server_lock_get(struct ts_data* pdata){
+void tcp_server_lock_wait(struct ts_data* pdata){
+	sem_wait(&pdata->td_lock);
 }
 
 /*ts_data release lock*/
 void tcp_server_lock_release(struct ts_data* pdata){
+	sem_close(&pdata->td_lock);
 }
 
 
@@ -139,7 +142,7 @@ void clt_init(CLT_INFO_T* pclt){
 		return;
 	}
 	/*initiate the client semophore*/
-	sem_init(&pclt->ci_sem,0,0);
+	clt_lock_init(pclt);
 	/*recording the initiate time*/
 	gettimeofday(&pclt->ci_conn_time, NULL);
 }
@@ -156,16 +159,20 @@ void clt_release(CLT_INFO_T* pclt){
 		close(pclt->ci_cfd);	
 	}
 }
+
+/*client data lock operation*/
 void clt_lock_init(CLT_INFO_T* clt){
-	
+	sem_init(&clt->ci_sem,0,1);
 }
-int clt_lock_get(CLT_INFO_T* clt){
-	
+
+void clt_lock_get(CLT_INFO_T* clt){
+	sem_wait(&clt->ci_sem);		
 }
 
 void clt_lock_release(CLT_INFO_T* clt){
-	
+	sem_close(&clt->ci_sem);
 }
+
 int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	CLT_INFO_T* clt_temp = NULL;
 	if(clt_item == NULL){
@@ -176,7 +183,7 @@ int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	/*connect stack full, fresh the tcp server*/
 	if(pdata->td_cur_clt_num >= pdata->td_max_conns){
 		printf("connectons statck full\n");
-		if(tcp_server_clt_fresh(pdata)){
+		if(clt_flush(pdata)){
 			printf("fresh tcp server connecton failed\n");
 			return -1;	
 		}
@@ -322,14 +329,16 @@ void clt_rcvbuf_to_pd(CLT_INFO_T* clt){
 	}
 }
 
-void* tcp_server_process(void* pdata){
+/*cltient data deal*/
+void clt_pd_deal(CLT_INFO_T* clt){
+
+}
+
+void* process_server(void* pdata){
 	struct ts_data ptcp_data = pdata;
+	PM_FLAG pm_flag = 
 	if(pdata == NULL){
 		pthread_exit(NULL);
-	}
-
-	if(){
-
 	}
 
 	/*process the client request*/
@@ -341,7 +350,8 @@ void* tcp_server_process(void* pdata){
 
 		CLT_INFO_T* cli_temp = ptcp_data->td_clts_head;
 		while(cli_temp){
-			clt_data_deal(cli_temp);
+			
+			clt_pd_deal(cli_temp);
 			cli_temp  =cli_temp->next;
 		}
 	}
@@ -350,7 +360,7 @@ void* tcp_server_process(void* pdata){
 }
 
 /*configure the tcp server with platform data*/
-int tcp_server_init(void* pdev){
+int server_init(void* pdev){
 	int ret = -1;
 	struct ts_dev* pts_dev = (struct ts_dev*)pdev;
 	/*1.0 allocate resource*/
@@ -397,7 +407,7 @@ int tcp_server_init(void* pdev){
 	}
 
 	/*3.3 create data process thread*/
-	ret = pthread_create(&tcp_server->td_process_pid, NULL, tcp_server_process, ptcp_server);
+	ret = pthread_create(&tcp_server->td_process_pid, NULL, process_server, ptcp_server);
 	if(ret != 0){
 		printf("process thread create failed\n");
 		goto err_process_thread;
