@@ -1,6 +1,7 @@
 /*src/process/chs_ctr.h*/
 #ifndef __CHS_CTR_H__
 #define __CHS_CTR_H__
+#include <stdio.h>
 
 typedef struct country{
 	unsigned int ctr_id;
@@ -11,7 +12,7 @@ typedef struct country{
 /*
 *according the value of ctr_id,converting id to country name stored to ctr_nm, the country name length is limited by the argument @ctr_len
 */
-extern int id_to_country(PROVINCE_ID ctr_id, char* ctr_nm, unsigned int ctr_len);
+extern int id_to_country(unsigned int ctr_id, char* ctr_nm, ssize_t ctr_len);
 
 /*
 *loading country info list from the file pointed to by ctr_fnm */

@@ -1,0 +1,4 @@
+#Makefile just for test
+INC_DIR = ../../include
+tcpserver:tcpserver.c
+	gcc -pthread -c $^ -I$(INC_DIR)

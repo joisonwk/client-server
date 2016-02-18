@@ -1,22 +1,22 @@
 /*src/process/chs_ctr.c*/
 #define __CHS_CTR_C__
 #include <process/chs_ctr.h>
+#include <stdio.h>
 
 static CTR_T* ctr_head;
 /*ctr_id to country name*/
-int id_to_country(PROVINCE_ID ctr_id, char* ctr_nm, unsigned int ctr_len){
-	int ctr_exist = 0;
-
-	CTR_T ctr_tmp = ctr_head;
-	while(ctr_tmp){
+int id_to_country(unsigned int ctr_id, char* ctr_nm, ssize_t ctr_len){
+	int cnlen = 0;
+	CTR_T* ctr_tmp = ctr_head;
+	while(NULL != ctr_tmp){
 		if(ctr_tmp->ctr_id == ctr_id){
-			snprintf(ctr_nm, ctr_len, ctr_tmp->ctr_nm);	
-			ctr_exist = 1;
+			cnlen += snprintf(ctr_nm, ctr_len, ctr_tmp->ctr_nm);	
 		}
 		ctr_tmp = ctr_tmp->next;
 	}
-	if(!ctr_exist)
-		snprintf(ctr_nm, ctr_len, "UNKNOW_COUNTRY");	
+	if(cnlen == 0)
+		cnlen += snprintf(ctr_nm, ctr_len, "UNKNOW_COUNTRY");	
+	return cnlen;
 }
 
 int country_init(const char* ctr_fnm){
@@ -38,11 +38,12 @@ int country_init(const char* ctr_fnm){
 
 	/*loading country info to country list*/
 	while(getline(&strline, NULL, fp)){
-		CTR_T* pctr = malloc(sizeof(CTR_T));
+		CTR_T* pctr = (CTR_T*)malloc(sizeof(CTR_T));
 		if(pctr == NULL){
 			perror("allocate country structure failed");
 			return -1;
 		}
+		bzero(pctr, sizeof(CTR_T));
 
 		char id_buf[128];
 		sscanf(strline, "%s=%s", id_buf, pctr->ctr_nm);

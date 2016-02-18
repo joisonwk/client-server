@@ -1,23 +1,24 @@
 /*src/process/chs_pv.c*/
 #define __CHS_PV_C__
+#include <stdio.h>
 #include <process/id_chs.h>
 #include <process/chs_pv.h>
 
 static PV_T* pv_head;
 /*pv_id to province name*/
-int id_to_province(unsigned int pv_id, char* pv_nm, unsigned int pv_len){
-	int pv_exist = 0;
+int id_to_province(unsigned int pv_id, char* pv_nm, ssize_t pv_len){
+	int pnlen= 0;
 
-	PV_T pv_tmp = pv_head;
-	while(pv_tmp){
+	PV_T* pv_tmp = pv_head;
+	while(NULL != pv_tmp){
 		if(pv_tmp->pv_id == pv_id){
-			snprintf(pv_nm, pv_len, pv_tmp->pv_nm);	
-			pv_exist = 1;
+			pnlen += snprintf(pv_nm, pv_len, pv_tmp->pv_nm);	
 		}
 		pv_tmp = pv_tmp->next;
 	}
-	if(!pv_exist)
-		snprintf(pv_nm, pv_len, "UNKNOW_PROVINCE");	
+	if(0 == pnlen)
+		pnlen = snprintf(pv_nm, pv_len, "UNKNOW_PROVINCE");	
+	return pnlen;
 }
 
 int province_init(const char* pv_fnm){
@@ -39,11 +40,12 @@ int province_init(const char* pv_fnm){
 
 	/*loading province info to province list*/
 	while(getline(&strline, NULL, fp)){
-		PV_T* ppv = malloc(sizeof(PV_T));
+		PV_T* ppv = (PV_T*)malloc(sizeof(PV_T));
 		if(ppv == NULL){
 			perror("allocate province structure failed");
 			return -1;
 		}
+		bzero(ppv, sizeof(PV_T));
 
 		char id_buf[128];
 		sscanf(strline, "%s=%s", id_buf, ppv->pv_nm);

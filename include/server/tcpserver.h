@@ -10,8 +10,8 @@
 
 #include <sys/select.h>
 #include <sys/socket.h>
-#include <cs_common.h>
-#include <process/process.h>
+#include <net_common.h>
+#include <process/process_core.h>
 #include <sys/time.h>
 
 
@@ -24,16 +24,19 @@ typedef struct clt_info {
 	//struct sockaddr_in ci_addr;	//client addr
 	//int ci_sinlen;	//client addr size
 
-	char ci_rcvbuf[MAX_BUFF_SIZE];
-	int ci_rcvlen;
-	char ci_sndbuf[MAX_BUFF_SIZE];
+	char ci_recvbuf[MAX_RECV_LEN];
+	int ci_recvlen;
+	char ci_sndbuf[MAX_SND_LEN];
 	int ci_sndlen;
+	
+	PD_T* ci_pdlist;
 
 	struct clt_info* next;
 } CLT_INFO_T;
 
 struct ts_data{
 	sem_t td_lock;
+	SERVER_TYPE_T td_method;
 	int td_sfd; //server socket fd
 	struct ts_dev td_dev;
 	pthread_t td_conn_pid;	
@@ -41,10 +44,9 @@ struct ts_data{
 	pthread_t td_process_pid;
 
 	CLT_INFO_T* td_clts_head;	//clients conn info
+	unsigned int td_max_conns;
 	unsigned int td_cur_clt_num;	//current conn number
 	time_t td_clt_tm_threshold;	//client connect timeout threshold
-	#define DEFAULT_THRESHOLD	20 
-	#define MAX_THRESHOLD		600	//10 mins
 	fd_set td_recv_fds;	//client read fd_set
 	fd_set td_snd_fds;
 };
@@ -61,7 +63,7 @@ TCPSERVER_EXTERN void tcp_server_exit(void);
 
 /*create the server socket*/
 static int tcp_server_create(void* pdata);
-static int tcp_server_lock_init(struct ts_data* pdata);
+static void tcp_server_lock_init(struct ts_data* pdata);
 static int tcp_server_lock_get(struct ts_data* pdata);
 static void tcp_server_lock_release(struct ts_data* pdata);
 

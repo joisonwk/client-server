@@ -11,8 +11,8 @@
 #include <errno.h>
 
 /*from self include direcotry*/
-#include <cs_common.h>
-#include <process/process.h>
+#include <common.h>
+#include <process/process_core.h>
 #include <server/tcpserver.h>
 
 struct tcp_data* ptcp_server;
@@ -41,9 +41,6 @@ int tcp_server_create(void* pdata)
 	tcp_port = ptcp_data->td_dev.port;
 	/*uncomplete: tcp_port testing*/
 
-	//AF_INET: Internet IPV4 Protocol
-	//SOCK_STREAM: Sequenced, reliable, connection-based byte streams
-	//0: IPPROTO_IP = 0, Dummy protocol for TCP
 	if((sockfd = socket(tcp_domain,SOCK_STREAM,0)) == -1)
 	{
 		printf("create socket error");
@@ -54,7 +51,7 @@ int tcp_server_create(void* pdata)
 	bzero(&server_addr,sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	//host byte order to net
-	server_addr.sin_port = htons(TCP_SERVER_PORT);
+	server_addr.sin_port = htons(tcp_port);
 	//INADDR_ANY: Address to accept any incoming messages
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 
@@ -90,16 +87,17 @@ void* tcp_server_conn(void* pdata){
 
 	server_fd = ptcp_data->td_sfd;
 	while(1){
-		clt_fd = accept(server_fd, &cli_addr, &sin_size);
+		clt_fd = accept(server_fd, (struct sockaddr_in*)&cli_addr, &sin_size);
 		if(clt_fd == -1){
 			perror("accept failed");
 			pthread_exit(NULL);
 		}
 
-		CLT_INFO_T* pclt_item = malloc(sizeof(CLT_INFO_T));
+		CLT_INFO_T* pclt_item = (CLT_INFO_T*)malloc(sizeof(CLT_INFO_T));
+		/*flush client to release memory space*/
 		if(pclt_item == NULL){
-			tcp_server_connfresh(ptcp_data);
-			pclt_item = malloc(sizeof(CLT_INFO_T));
+			tcp_server_clt_fresh(ptcp_data);
+			pclt_item = (CLT_INFO_T*)malloc(sizeof(CLT_INFO_T));
 			if(pclt_item == NULL){
 				perror("allocate client structure memory failed");
 				pthread_exit(NULL);
@@ -110,7 +108,7 @@ void* tcp_server_conn(void* pdata){
 		clt_init(pclt_item);
 		pclt_item->ci_cfd = clt_fd;
 
-		if(0 != tcp_server_clt_add(ptcp_data, clt_item)){
+		if(0 != tcp_server_clt_add(ptcp_data, pclt_item)){
 			printf("add client failed");
 			clt_release(pclt_item);
 			if(pclt_item){
@@ -121,13 +119,27 @@ void* tcp_server_conn(void* pdata){
 	}
 }
 
+/*ts_lock_init*/
+void tcp_server_lock_init(struct ts_data* pdata){
+
+}
+
+/*ts_data get lock*/
+int tcp_server_lock_get(struct ts_data* pdata){
+}
+
+/*ts_data release lock*/
+void tcp_server_lock_release(struct ts_data* pdata){
+}
+
+
 /*initiate the client info struction*/
 void clt_init(CLT_INFO_T* pclt){
 	if(NULL == pclt){
 		return;
 	}
 	/*initiate the client semophore*/
-	sem_init(pclt->ci_sem,0,0);
+	sem_init(&pclt->ci_sem,0,0);
 	/*recording the initiate time*/
 	gettimeofday(&pclt->ci_conn_time, NULL);
 }
@@ -138,21 +150,21 @@ void clt_release(CLT_INFO_T* pclt){
 		return;
 	}	
 
-	sem_close(pclt->ci_sem);
+	sem_close(&pclt->ci_sem);
 	/*close the client socket*/
 	if(pclt->ci_cfd){
 		close(pclt->ci_cfd);	
 	}
 }
 void clt_lock_init(CLT_INFO_T* clt){
-
+	
 }
 int clt_lock_get(CLT_INFO_T* clt){
-
+	
 }
 
 void clt_lock_release(CLT_INFO_T* clt){
-
+	
 }
 int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	CLT_INFO_T* clt_temp = NULL;
@@ -164,7 +176,7 @@ int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 	/*connect stack full, fresh the tcp server*/
 	if(pdata->td_cur_clt_num >= pdata->td_max_conns){
 		printf("connectons statck full\n");
-		if(tcp_server_connfresh(pdata)){
+		if(tcp_server_clt_fresh(pdata)){
 			printf("fresh tcp server connecton failed\n");
 			return -1;	
 		}
@@ -186,7 +198,7 @@ int tcp_server_clt_add(struct ts_data* pdata, CLT_INFO_T* clt_item){
 }
 
 /*disconnect timeout connection, or diconnect the oldest connection when the tcp server stack is full*/
-int tcp_server_connfresh(struct ts_data* pdata){
+int tcp_server_clt_fresh(struct ts_data* pdata){
 	struct ts_data* ptcp_data = pdata;	
 	struct timeval cur_time; 
 	time_t cur_secs;
@@ -197,27 +209,29 @@ int tcp_server_connfresh(struct ts_data* pdata){
 	}
 
 	/*when current client number not less than the max connections, or no space*/
-	if((ptcp_data->td_max_conns <= ptcp_data->td_cur_clt_num) ||
+	if((ptcp_data->td_max_conn<= ptcp_data->td_cur_clt_num) ||
 		(errno==ENOMEM)){
 		int pre_conns = ptcp_data->td_cur_clt_num;
-		CLT_INFO_T* clt_temp,clt_it;
+		CLT_INFO_T* clt_temp = NULL;
+		CLT_INFO_T* clt_it = NULL;
 
 		if(gettimeofday(&cur_time, NULL)!=0){
 			perror("gettimeofday failed");
 			return -1;
 		}
-		cur_secs = cur_time->tv_sec;
 
+		cur_secs = cur_time.tv_sec;
 		clt_it= ptcp_data->td_clts_head;
-		while(clt_it){
+	
+		while(NULL != clt_it){
 			clt_temp = clt_it;
 			clt_it= clt_it->next;
 
 			time_t persist_sec = 0;
 			persist_sec = cur_secs - clt_temp->ci_conn_time.tv_sec;	//persistent time
 
-			/*release and delete client */
-			if(persist_sec > ptcp_data->td_clt_threshold){
+			/*release and delete timeout client */
+			if(persist_sec > ptcp_data->td_clt_tm_threshold){
 				FD_CLR(clt_temp->ci_cfd, &ptcp_data->td_recv_fds);
 				FD_CLR(clt_temp->ci_cfd, &ptcp_data->td_snd_fds);
 				clt_release(clt_temp);
@@ -226,6 +240,7 @@ int tcp_server_connfresh(struct ts_data* pdata){
 		}
 	}
 
+	return 0;
 }
 
 /*tcp server receive data from client socket*/
@@ -234,7 +249,7 @@ void* tcp_server_recv(void* pdata){
 		pthread_exit(NULL);
 	}
 
-	struct ts_data* ptcp_data = (struct ts_data)pdata;
+	struct ts_data* ptcp_data = (struct ts_data*)pdata;
 	FD_ZERO(&ptcp_data->td_recv_fds);
 
 	while(1){
@@ -252,7 +267,7 @@ void* tcp_server_recv(void* pdata){
 		for(;cli_list;cli_list=cli_list->next){
 			/*receive data from client */
 			if(FD_ISSET(cli_list->ci_cfd, &rfds) && clt_lock_get(cli_list)){
-				cli_list->ci_recv_len = recv(cli_list->cfd, cli_list->ci_recvbuf, MAX_BUFF_LEN,0);
+				cli_list->ci_recvlen = recv(cli_list->ci_cfd, cli_list->ci_recvbuf, MAX_RECV_LEN,0);
 				clt_lock_release(cli_list);
 			}
 
@@ -271,10 +286,50 @@ void* tcp_server_recv(void* pdata){
 	}
 }
 
+inline void clt_pd_add(CLT_INFO_T* clt,PD_T* pd){
+	if(clt==NULL || pd==NULL){
+		return;
+	}
+	PD_T* ppd_tmp = clt->ci_pdlist;
+	while(NULL!=ppd_tmp){
+		ppd_tmp = ppd_tmp->next;
+	}
+	ppd_tmp = ppd;
+}
+
+
+/*save recvbuf to pd list*/
+void clt_rcvbuf_to_pd(CLT_INFO_T* clt){
+	if(clt == NULL){
+		return;
+	}
+
+	if(clt_lock_get(clt) && (clt->ci_recvlen > 0)){
+		PD_T* ppd = (PD_T)malloc(sizeof(ppd));
+		if(ppd == NULL){
+			flush_sys();
+			ppd = (PD_T)malloc(sizeof(ppd));
+			if(ppd==NULL){
+				perror("create process data struct failed\n");
+				return;
+			}
+		}
+
+		bzero(ppd, sizeof(PD_T));
+		memcpy(ppd->pd_ibuf, clt->ci_recvbuf, clt->ci_recvlen);		
+		clt->ci_recvlen = 0;
+		clt_pd_add(clt, ppd);	
+	}
+}
+
 void* tcp_server_process(void* pdata){
 	struct ts_data ptcp_data = pdata;
 	if(pdata == NULL){
 		pthread_exit(NULL);
+	}
+
+	if(){
+
 	}
 
 	/*process the client request*/
@@ -286,36 +341,12 @@ void* tcp_server_process(void* pdata){
 
 		CLT_INFO_T* cli_temp = ptcp_data->td_clts_head;
 		while(cli_temp){
-			int rlen, slen;
-			char* rbuf, sbuf;
-			rbuf = cli_temp->ci_recvbuf;
-			rlen = cli_temp->ci_recv_len;
-			sbuf = cli_temp->ci_sndbuf;
-			slen = cli_temp->ci_sndlen;
-
-			if(clt_lock_get(cli_temp) && (rlen>0)){
-				/*parse the rbuf*/
-				if(rlen>0){
-					slen += id_process(rbuf,rlen,sbuf+slen);
-				}
-				clt_lock_release(cli_temp);
-			}
-
+			clt_data_deal(cli_temp);
 			cli_temp  =cli_temp->next;
 		}
 	}
-}
 
-/*ts_lock_init*/
-void tcp_server_lock_init(struct ts_data* pdata){
-}
-
-/*ts_data get lock*/
-int tcp_server_lock_get(struct ts_data* pdata){
-}
-
-/*ts_data release lock*/
-void tcp_server_lock_release(struct ts_data* pdata){
+	pthread_exit(NULL);
 }
 
 /*configure the tcp server with platform data*/
@@ -323,7 +354,7 @@ int tcp_server_init(void* pdev){
 	int ret = -1;
 	struct ts_dev* pts_dev = (struct ts_dev*)pdev;
 	/*1.0 allocate resource*/
-	ptcp_server = malloc(sizeof(struct ts_data));
+	ptcp_server = (struct ts_data*)malloc(sizeof(struct ts_data));
 
 	if(ptcp_server == NULL){
 		perror("allocate tcp_server failed");
@@ -373,15 +404,15 @@ int tcp_server_init(void* pdev){
 	}
 
 	return 0;
-
-err_process_thread:
-/*kill receive thread*/
-err_recv_thread:
-/*kill connection thread*/
-err_conn_thread:
-/*close tcp server socket*/
+	
+	err_process_thread:
+	/*kill receive thread*/
+	err_recv_thread:
+	/*kill connection thread*/
+	err_conn_thread:
+	/*close tcp server socket*/
 	close(ptcp_server->td_sfd);	
-err_server_create:
+	err_server_create:
 	free(ptcp_server);
 	return ret;
 }
