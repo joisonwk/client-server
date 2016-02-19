@@ -3,29 +3,32 @@
 #define __SERVER_CORE_H__
 #define SERVER_CONF_FILE	"server.conf"
 #include <sys/select.h>
+#include <util/c_list.h>
 #include <server/clt_item.h>
 #include <server/process_server.h>
 #include <server/conn_tcp.h>
 
 struct server_data{
-	int sd_fd; //server socket fd
-	CLT_T* sd_clts;	
-	PD_T* sd_pd;
+	sem_t sd_sem;	//server semephore
+	/*connect configure struct*/
+	unsigned int sd_connflag;
+	struct tcp_data sd_tcpconf;
+	struct udp_data sd_udpconf;
 
-	unsigned short sd_tcp_port;
-	unsigned short sd_udp_port;
+	struct list_head sd_clt_head;
+	//CLT_T* sd_clts;	
+	struct list_head sd_pd_head;
+	//PD_T* sd_pd;
 
-	pthread_t sd_recvpid;	//receive thread id 
-	pthread_t sd_prcspid;	//process thread id
+	pthread_t sd_tcp_pid;	//tcp receive thread id 
+	pthread_t sd_clt_recv_pid;
+	pthread_t sd_prcs_pid;	//process thread id
 
-	unsigned int td_max_conns;
-	unsigned int td_cur_clt_num;	//current conn number
-	time_t td_clt_tm_threshold;	//client connect timeout threshold
+	unsigned int ;	//current conn number
 	fd_set clts_fds;	//client read fd_set
 };
 
-extern void flush_sys(void);
-extern int server_clt_add(CLT_T* clt);
+static void flush_sys(void);
 extern int server_pd_add(PD_T* pd);
 
 #endif //__SERVER_CORE_H__

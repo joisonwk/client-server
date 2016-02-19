@@ -1,16 +1,17 @@
-/*src/process/process_server.c*/
-#define __PROCESS_SERVER_C__
+/*src/process/process_core.c*/
+#define __PROCESS_CORE_C__
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <server/proces_server.h>
-#include <process/id_chs.h>	//id process method
+#include <util/c_list.h>
+#include <server/proces_core.h>
+
+#define MAX_METHOD	20
 
 /*include the process method valibles*/
 extern struct PM_T id_process_method;
-
-static PM_T* ppm_tab[PMF_MAX_METHOD] = {
+static PM_T* ppm_tab[MAX_METHOD] = {
 	&id_process_method,
 };
 
@@ -18,14 +19,14 @@ static PM_T* ppm_tab[PMF_MAX_METHOD] = {
 /**/
 int process_init(void){
 	int i;
-	for(i=0;i<PMF_MAX_METHOD;i++){
+	for(i=0;i<MAX_METHOD;i++){
 		if(NULL==ppm_tab[i]){
 			continue;
 		}
 		sem_init(&ppm_tab[i]->pm_sem,0,1);
 		if(!ppm_tab[i]->pm_init(ppm_tab[i].pm_ctrl_file)){
 			ppm_tab[i]->pm_stat = PMS_INITED;
-			gettimeofday(&ppm_tab[i].pm_rtv,NULL);
+			gettimeofday(&ppm_tab[i]->pm_rtv,NULL);
 		}
 	}
 	return 0;
@@ -39,7 +40,7 @@ int process_deal(PD_T* pd){
 	}
 
 	/*match method*/
-	for(i=0;i<PMF_MAX_METHOD;i++){
+	for(i=0;i<MAX_METHOD;i++){
 		if(NULL == ppm_tab[i])
 			continue;
 		
@@ -64,12 +65,38 @@ int process_deal(PD_T* pd){
 	return 0;
 }
 
+/*process thread func*/
+void* process_thread(void* pdata){
+	struct server_data* psd = NULL; 
+	struct CLT_T* pclt = NULL;
+	struct list_head* pclt_head = NULL;
+	if(pdata == NULL){
+		pthread_exit(NULL);
+	}
+	psd = (struct server_data*) pdata;
+	pclt_head = &psd->sd_clt_head;
+	while(1){
+		list_for_each_entry(pclt,psd->sd_clt_head,ci_list){
+			if(!sem_trywait(pclt->ci_sem)){
+				if(pclt->ci_rlen>0){
+					process_deal(pclt);
+					clt_fresh(pclt);
+					if(pclt->ci_wlen>0){
+						clt_send(pclt);	
+					}
+				}
+				sem_post(&pclt->ci_sem);	
+			}
+		}
+	}
+}
+
 /*run process refresh*/
 void process_flush(void){
 	int i;
 	struct timeval cur_tm;
 	gettimeofday(&cur_tm,NULL);
-	for(i=0;i<PMF_MAX_METHOD;i++){
+	for(i=0;i<MAX_METHOD;i++){
 		if(ppm_tab[i] == NULL)
 			continue;
 		if(cur_tm.tv_sec > ((ppm_tab[i]->pm_rtv.tv_sec)+METHOD_TIMEOUT)){
@@ -83,7 +110,7 @@ void process_flush(void){
 
 void process_exit(void){
 	int i;
-	for(i=0;i<PMF_MAX_METHOD;i++){
+	for(i=0;i<MAX_METHOD;i++){
 		if(ppm_tab[i] == NULL)
 			continue;
 		if(ppm_tab[i]->pm_stat == PMS_INITED && ppm_tab[i]->pm_exit){
