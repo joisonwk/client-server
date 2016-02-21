@@ -5,14 +5,16 @@
 #include <server/process_server.h>
 #include <server/clt_item.h>
 int main(int argc, char* argv[]){
+	/*initial the server, if failed return*/
 	if(!server_init()){
 		printf("server create failed\n");	
+		return -1;
 	}
 
 	struct server_data* psd = NULL;
-	psd = get_server();
+	/*get the server handle and locking it*/
 	/*#create tcp server thread*/
-	pthread(&psd->sd_tcp_pid,NULL,tcp_thread,psd);
+	pthread(&psd->sd_tcp_pid,NULL,tcp_thread,NULL);
 
 	{
 		/*#uncomplete:create udp server*/
@@ -21,10 +23,10 @@ int main(int argc, char* argv[]){
 
 	/*create data process thread*/
 	if(psd->sd_conn_flag){
-		pthread_create(&psd->sd_prcs_pid, NULL,process_thread, psd);
+		pthread_create(&psd->sd_prcs_pid, NULL,process_thread, NULL);
 	}
 
-	post_server();	//server init completed
+	/*release the server handle*/
 	pthread_join(sd->sd_prcs_pid, NULL);
 	pthread_join(sd->sd_tcp_pid,NULL);
 	/*#create data deal thread*/

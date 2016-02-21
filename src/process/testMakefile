@@ -1,8 +1,0 @@
-#test Makefile
-#ID_CTRL_FILES = "pv.conf ct.conf ctr.conf"
-CFLAGS = -I../../include 
-#CFLAGS += -DID_CTRL_FILES=$(ID_CTRL_FILES)
-id_chs.o: id_chs.c chs_ct.c chs_ctr.c chs_pv.c 
-	gcc -c $^ $(CFLAGS)
-#process_core.o: process_core.c process/process_core.h process/id_chs.h
-#	gcc -o $@ -c $^

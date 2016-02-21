@@ -5,12 +5,14 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <util/c_list.h>
-#include <server/proces_core.h>
+#include <server/process_core.h>
 
 #define MAX_METHOD	20
 
-/*include the process method valibles*/
+/*declare the process method valibles*/
 extern struct PM_T id_process_method;
+
+/*initate the process method table*/
 static PM_T* ppm_tab[MAX_METHOD] = {
 	&id_process_method,
 };
@@ -33,7 +35,7 @@ int process_init(void){
 }
 
 /*deal success return 0, else return -1*/
-int process_deal(PD_T* pd){
+int process_deal(CLT_T* pclt){
 	int i;	
 	if(pd == NULL){
 		return -1;
@@ -73,8 +75,9 @@ void* process_thread(void* pdata){
 	if(pdata == NULL){
 		pthread_exit(NULL);
 	}
-	psd = (struct server_data*) pdata;
+	psd = get_server();
 	pclt_head = &psd->sd_clt_head;
+	post_server();
 	while(1){
 		list_for_each_entry(pclt,psd->sd_clt_head,ci_list){
 			if(!sem_trywait(pclt->ci_sem)){

@@ -18,22 +18,23 @@
 static int sfd;	//tcp server socket
 
 /*create tcp server*/
-int tcp_init(struct tcp_data* pdata)
+int tcp_init(void)
 {
 	int sfd;
 	struct sockaddr_in server_addr;
 	int tcp_domain;
-	struct server_data* psd = NULL;
+	struct tcp_data* ptd = NULL;
+	struct server_data* psd = get_server();
+	ptd = psd->sd_tcpconf;
+	post_server();
 
-	if(pdata == NULL){
-		printf("tcp server is empty\n");
+	if(psd->sd_tcpconf==NULL){
+		printf("tcp config is empty\n");
 		return -1;
 	}
 
-	psd = container_of(pdata,struct server_data,sd_tcpconf);
-    
     	/*socket argument check*/
-	tcp_domain = pdata->td_dev.domain;
+	tcp_domain = ptd->tcp_domain;
 	if((tcp_domain!=AF_INET) && (tcp_domain!=AF_INET6)){
 		tcp_domain = AF_INET;
 	}
@@ -49,9 +50,9 @@ int tcp_init(struct tcp_data* pdata)
     
     	/*1.2 initial the socket address*/
 	bzero(&server_addr,sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
+	server_addr.sin_family = tcp_domain;
 	//host byte order to net
-	server_addr.sin_port = htons(pdata->tcp_port);
+	server_addr.sin_port = htons(ptd->tcp_port);
 	//INADDR_ANY: Address to accept any incoming messages
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 
@@ -64,16 +65,15 @@ int tcp_init(struct tcp_data* pdata)
 	}
     
 	//N connection requests will be queued before further requests are refused.
-	if(pdata->tcp_max_lstn <= 0){
+	if(ptd->tcp_max_lstn <= 0)
 		pdata->tcp_max_lstn = DEFAULT_LSTNUM;
-	}
 	if(listen(sfd,pdata->tcp_max_lstn)==-1)
 	{
 		perror("listen");
 		close(sfd);
 		return -1;
 	}
-	pdata->tcp_sfd = sfd;
+	ptd->tcp_sfd = sfd;
 	psd->sd_conn_flag = true;
 
 	return 0;
@@ -81,24 +81,22 @@ int tcp_init(struct tcp_data* pdata)
 
 /*receive client connection and insert to client stack*/
 void tcp_thread(void* pdata){
-	struct server_data *psd = pdata;
+	struct server_data *psd = NULL;
 	struct tcp_data* ptd;
 	int clt_fd, srv_fd;
 	struct sockaddr_in cli_addr;
 	int sin_size = sizeof(struct sockaddr_in);
-
-	if(NULL == pdata) {
-		pthread_exit(NULL);
-	}
-
+	
+	psd = get_server();
 	ptd = &psd->sd_tcpconf;
+	post_server();
 	if(tcp_init(&psd->sd_tcpconf)) {
 		perror("init tcp server failed\n");
 		pthread_exit(NULL);	
 	}
 
-	pthread_create(ptd->tcp_recv_pid,NULL,tcp_clt_data_recv,psd);
-	pthread_create(ptd->tcp_send_pid,NULL,tcp_clt_data_send,psd);
+	pthread_create(ptd->tcp_recv_pid,NULL,tcp_clt_data_recv,NULL);
+	pthread_create(ptd->tcp_send_pid,NULL,tcp_clt_data_send,NULL);
 
 	while(1){
 		clt_fd = accept(srv_fd, (struct sockaddr_in*)&cli_addr, &sin_size);
@@ -139,11 +137,10 @@ void tcp_thread(void* pdata){
 
 /*tcp client receive data from client socket*/
 void* tcp_clt_data_recv(void* pdata){
-	struct server_data psd = (struct server_data*)pdata;
-	if(psd == NULL)
-		pthread_exit(NULL);
 	CLT_T* pclt = NULL;
+	struct server_data psd = get_server();
 	struct list_head* phead = psd->sd_clt_head;
+	post_server();
 	while(1){
 		list_for_each_entry(pclt,phead, ci_head){
 			/*recieve data*/
@@ -165,12 +162,10 @@ void* tcp_clt_data_recv(void* pdata){
 }
 /*tcp client data send */
 void* tcp_clt_data_send(void* pdata){
-	struct server_data* psd = (struct server_data*)pdata	
 	CLT_T* pclt = NULL;
-
-	if(psd==NULL) pthread_exit(NULL);
-	
+	struct server_data* psd = get_server();
 	struct list_head* phead = psd->sd_clt_head;
+	post_server();
 	while(1){
 		list_for_each_entry(){
 			if(pclt->ci_type==ECT_TCP && !sem_trywait(&pclt->ci_sem)){

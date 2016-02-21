@@ -1,23 +1,37 @@
-/*src/server/clt_item.c*/
+/*src/client/clt_item.c*/
 #define __CLT_ITEM_C__
+#include <util/c_list.h>
+#include <util/c_kernel.h>
 #include <server/server_core.h>
 #include <clt_item.h>
 
 /*release the timeout client connect*/
-void clt_flush(struct server* pserver){
+void clt_flush(void){
 	CLT_T* pclt = NULL;
-	struct timeval cur_tm;
-	if(pserver == NULL){
+	struct list_head* clt_head, *list_pos;
+	struct server_data* psd;
+
+	psd = get_server();
+	if(psd == NULL){
 		return;	
 	}
+	clt_head = &psd->sd_clt_head;
+	post_server();
 	
 	gettimeofday(&cur_tm, NULL);
-	CLT_T* pclt = pserver->sd_clts;
-	while(pclt){
-		if(pclt->ci_conn_time.tv_sec+CLT_TIMEOUT<cur_tm.tv_sec){
-			CLT_T* ptmp = pclt;
+	/*timeout client remove for the client list*/
+	list_for_each(list_pos,clt_head){
+		pclt = list_entry(head,struct clt_item, ci_list);
+		if(clt_is_timeout(pclt)){	
+			struct list_head* next = pclt->ci_list->next;	//save the next node
+			get_server();
+			list_del(pclt->ci_list);
+			post_server();
+
 			clt_release(pclt);
 			free(pclt);
+			if(next==head)
+				break;
 		}
 	}
 }
@@ -66,39 +80,9 @@ extern void clt_add(CLT_T* pclt){
 	if(sd==NULL){
 		return;
 	}
-	list_add(pclt,sd->sd_clt_head);
-}
-
-void clt_send(CLT_T* pclt){
-	switch(pclt->ci_type){
-	case CONN_TCP:
-	case CONN_UDP:
-		tcp_clt_data_send(pclt);
-		pclt->ci_wlen -= send(pclt->ci_cfd,pclt->ci_wbuf, pclt->ci_wlen);	
-		break;
-	default:
-		/*uncomplete:*/	
-	}
-}
-
-void* clt_recv_data(void* pdata);
-
-/*client receive data*/
-void* clt_recv_thread(void* pdata){
-	struct server_data* pserver = pdata;
-	int sfd = pserver->sd_fd;
-	struct sockaddr_in caddr;
-	size_t sin_size = 0;
-	while(1){
-		int cfd = (sfd, &caddr, &sin_size, 0);
-		if(cfd>0){
-			CLT_T* pclt = (CLT_T*)malloc(sizeof(CLT_T));	
-			if(pclt==NULL){
-				flush_sys();
-			}
-		}
-		
-	}
+	
+	list_add(&pclt->ci_list,sd->sd_clt_head);
+	post_server();
 }
 
 #undef __CLT_ITEM_C__

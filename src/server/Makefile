@@ -1,2 +1,0 @@
-# src/server/Makefile
-

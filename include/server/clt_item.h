@@ -1,4 +1,3 @@
-/*include/server/clt_item.h*/
 #ifndef __CLT_ITEM_H__
 #define __CLT_ITEM_H__
 
