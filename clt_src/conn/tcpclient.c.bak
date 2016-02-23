@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <conn_item.h>
+
+int create_tcp(struct conn_item* pci)
+{
+	int sockfd,numbytes;
+	char buf[256];
+    	struct sockaddr_in their_addr;
+	int i = 0;
+    
+	if((sockfd = socket(AF_INET,SOCK_STREAM,0))==-1)
+	{
+  		perror("socket");
+    		printf("create socket error\n");
+    		exit(1);
+	}
+
+    	their_addr.sin_family = AF_INET;
+    	their_addr.sin_port = htons(2323);
+	/* inet_aton: Convert Internet host address from numbers-and-dots notation in CP*/
+    	if(inet_pton(AF_INET, argv[1], &their_addr.sin_addr) <= 0)
+    	{
+        	printf("[%s] is not a valid IPaddress\n", argv[1]);
+        	exit(1);
+    	}
+
+    	//inet_aton( "192.168.114.171", &their_addr.sin_addr );
+    	bzero(&(their_addr.sin_zero),8);
+    
+    	if(connect(sockfd,(struct sockaddr *)&their_addr,sizeof(struct sockaddr))==-1)
+    	{
+		perror("connect");
+		exit(1);
+    	}
+    
+    	if(send(sockfd,"hello!socket.",6,0)==-1)
+    	{
+        	perror("send");
+        	exit(1);
+    	}
+    
+    	if((numbytes = recv(sockfd,buf,256,0))==-1)
+    	{
+        	perror("recv");
+        	exit(1);
+    	}
+
+    	buf[numbytes] = '\0'; 
+    	printf("Recive from server:%s\n",buf);
+
+    	close(sockfd);
+    	return 0;
+}

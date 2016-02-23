@@ -1,3 +1,9 @@
 #Makefile
-tcpclient:tcpclient.c
-	$(CC) $(CFLAG) -I$(INC_DIR) -o $^ $@
+CC = gcc
+CFLAGS = -Iinclude
+
+DEPENDS = conn/tcpclient.o main.o
+
+TARGET=client-bin
+$(TARGET):$(DEPENDS)
+	$(CC) $(CFLAGS) -o $@ $^

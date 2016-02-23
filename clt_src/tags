@@ -1,0 +1,28 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	Makefile	/^CC = gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -Iinclude$/;"	m
+CT_CONNED	include/conn_item.h	/^	CT_CONNED,	\/\/connnected$/;"	e	enum:conn_stat
+CT_TCP	include/conn_item.h	/^	CT_TCP,$/;"	e	enum:conn_type
+CT_UNCONN	include/conn_item.h	/^	CT_UNCONN,	\/\/unconnected$/;"	e	enum:conn_stat
+CT_UNKOWN	include/conn_item.h	/^	CT_UNKOWN,$/;"	e	enum:conn_type
+DEPENDS	Makefile	/^DEPENDS = tcpclient.o$/;"	m
+MAXLINE	conn/udpclient.c	10;"	d	file:
+SERV_PORT	conn/udpclient.c	11;"	d	file:
+TARGET	Makefile	/^TARGET=client-bin$/;"	m
+__CONN_ITEM_H__	include/conn_item.h	2;"	d
+ci_cs	include/conn_item.h	/^	enum conn_stat ci_cs;	\/\/connect status$/;"	m	struct:conn_item	typeref:enum:conn_item::conn_stat
+ci_ct	include/conn_item.h	/^	enum conn_type ci_ct;	\/\/connect type$/;"	m	struct:conn_item	typeref:enum:conn_item::conn_type
+ci_saddr	include/conn_item.h	/^	struct sockaddr ci_saddr;$/;"	m	struct:conn_item	typeref:struct:conn_item::sockaddr
+conn_item	include/conn_item.h	/^struct conn_item{$/;"	s
+conn_stat	include/conn_item.h	/^enum conn_stat{$/;"	g
+conn_type	include/conn_item.h	/^enum conn_type{$/;"	g
+do_cli	conn/udpclient.c	/^void do_cli(FILE *fp, int sockfd, struct sockaddr *pservaddr, socklen_t servlen)$/;"	f
+main	conn/tcpclient.c	/^int main(int argc,char *argv[])$/;"	f
+main	conn/udpclient.c	/^int main(int argc, char **argv)$/;"	f
+main	main.c	/^int main(int argc, char* argv[]){$/;"	f
+usage	main.c	/^void usage(const char* cmdstr){$/;"	f
