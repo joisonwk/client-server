@@ -11,6 +11,7 @@ int sockfd;
 
 int tcp_init(struct conn_item* pdata)
 {
+	printf("tcp init start\n");
     	struct sockaddr_in* paddr;
 	pci = pdata;
 	
@@ -33,7 +34,7 @@ int tcp_init(struct conn_item* pdata)
 
     	bzero(&(paddr->sin_zero),8);
     
-    	if(connect(sockfd,(struct sockaddr *)&paddr,sizeof(struct sockaddr))==-1)
+    	if(connect(sockfd,(struct sockaddr *)paddr,sizeof(struct sockaddr))==-1)
     	{
 		perror("connect");
 		exit(1);
@@ -44,6 +45,7 @@ int tcp_init(struct conn_item* pdata)
 int id_to_addr(const char* id_buf,char* addr_buf, int* paddrlen){
     	if(send(pci->ci_sockfd,id_buf,strlen(id_buf),0)==-1)
     	{
+		printf("send failed");
 		if(tcp_init(pci)){
 			if(-1==send(pci->ci_sockfd,id_buf,strlen(id_buf),0)){
 				perror("send");
