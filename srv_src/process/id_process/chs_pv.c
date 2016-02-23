@@ -55,14 +55,15 @@ int province_init(const char* pv_fnm){
 	if(strline){
 		free(strline);
 	}
+	printf("loading city information from %s success\n", pv_fnm);
 }
 
 void province_release(void){
-	PV_T* index = NULL ;
-	while(pv_head){
-		index = pv_head;
+	PV_T* index = pv_head;
+	while(index){
+		pv_head = index->next;
 		free(index);
-		pv_head = pv_head->next;
+		index = pv_head;
 	}
 }
 

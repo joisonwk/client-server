@@ -47,7 +47,7 @@ int city_init(const char* ct_fnm){
 			return -1;
 		}
 		bzero(pct, sizeof(CT_T));
-
+		
 		char id_buf[128];
 		sscanf(strline, "%s=%s", id_buf, pct->ct_nm);
 		pct->ct_id = atoi(id_buf);			
@@ -56,14 +56,15 @@ int city_init(const char* ct_fnm){
 	if(strline){
 		free(strline);
 	}
+	printf("loading city information from %s success\n", ct_fnm);
 }
 
 void city_release(void){
-	CT_T* index = NULL ;
-	while(ct_head){
-		index = ct_head;
+	CT_T* index = ct_head;
+	while(index){
+		ct_head = index->next;
 		free(index);
-		ct_head = ct_head->next;
+		index = ct_head;
 	}
 }
 

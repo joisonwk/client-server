@@ -11,6 +11,6 @@
 
 /*protocol define*/
 #define MAX_RECV_LEN 4096
-#define MAX_SND_LEN 4096
+#define MAX_SEND_LEN 4096
 
 #endif //__CONN_COMMON_H__

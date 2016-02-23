@@ -22,14 +22,14 @@ CTR_T	include/process/chs_ctr.h	/^}CTR_T;$/;"	t	typeref:struct:country
 CT_T	include/process/chs_ct.h	/^}CT_T;$/;"	t	typeref:struct:city
 DATE_LEN	include/process/id_chs.h	16;"	d
 DEBUG	Makefile	/^DEBUG = -Wall$/;"	m
-DEFAULT_LSTNUM	include/server/conn_tcp.h	15;"	d
+DEFAULT_LSTNUM	include/server/conn_tcp.h	14;"	d
 ECT_TCP	include/server/clt_item.h	/^	ECT_TCP,$/;"	e	enum:eclt_type
 ECT_UDP	include/server/clt_item.h	/^	ECT_UDP,$/;"	e	enum:eclt_type
 ECT_UNKNOW	include/server/clt_item.h	/^	ECT_UNKNOW,$/;"	e	enum:eclt_type
 ID_CHS_EXTERN	include/process/id_chs.h	11;"	d
 ID_CHS_EXTERN	include/process/id_chs.h	9;"	d
 ID_CTRL_FILES	Makefile	/^ID_CTRL_FILES = "$(ID_PV_CONF_PATH) $(ID_CT_CONF_PATH) $(ID_CTR_CONF_PATH)"$/;"	m
-ID_CTRL_FILES	src/process/id_chs.c	10;"	d	file:
+ID_CTRL_FILES	srv_src/process/id_process/id_chs.c	10;"	d	file:
 ID_CTR_CONF_PATH	Makefile	/^ID_CTR_CONF_PATH = $(CONF_DIR)\/country.conf$/;"	m
 ID_CT_CONF_PATH	Makefile	/^ID_CT_CONF_PATH = $(CONF_DIR)\/city.conf$/;"	m
 ID_PV_CONF_PATH	Makefile	/^ID_PV_CONF_PATH = $(CONF_DIR)\/province.conf$/;"	m
@@ -39,13 +39,13 @@ INCLUDE_DIR	Makefile	/^INCLUDE_DIR = $(SRC_DIR)\/include$/;"	m
 INIT_LIST_HEAD	include/util/c_list.h	/^static inline void INIT_LIST_HEAD(struct list_head *list)$/;"	f
 LIST_HEAD	include/util/c_list.h	20;"	d
 LIST_HEAD_INIT	include/util/c_list.h	18;"	d
-MAXLINE	src/client/udpclient.c	10;"	d	file:
-MAXLINE	src/server/udpserver.c	8;"	d	file:
-MAX_METHOD	src/server/process_server.c	10;"	d	file:
+MAXLINE	clt_src/udpclient.c	10;"	d	file:
+MAXLINE	srv_src/conn/conn_udp.c	8;"	d	file:
+MAX_METHOD	srv_src/process/process_core.c	10;"	d	file:
 MAX_PATH_LEN	include/common.h	5;"	d
 MAX_RECV_LEN	include/conn_common.h	13;"	d
 MAX_SND_LEN	include/conn_common.h	14;"	d
-MAX_TIMEVAL	include/server/clt_item.h	20;"	d
+MAX_TIMEVAL	include/server/clt_item.h	19;"	d
 METHOD_TIME	include/server/process_server.h	38;"	d
 MS_INITED	include/server/process_server.h	/^	MS_INITED,$/;"	e	enum:method_stat
 MS_UNINIT	include/server/process_server.h	/^	MS_UNINIT,$/;"	e	enum:method_stat
@@ -70,46 +70,46 @@ ROOT_DIR	Makefile	/^ROOT_DIR = $(PWD)$/;"	m
 SERVER_BIN	Makefile	/^SERVER_BIN = $(CROSS_ARCH)-server$/;"	m
 SERVER_CONF_FILE	include/server/server_core.h	4;"	d
 SERVER_DIR	Makefile	/^SERVER_DIR = $(SRC_DIR)\/server$/;"	m
-SERV_PORT	src/client/udpclient.c	11;"	d	file:
-SERV_PORT	src/server/udpserver.c	9;"	d	file:
+SERV_PORT	clt_src/udpclient.c	11;"	d	file:
+SERV_PORT	srv_src/conn/conn_udp.c	9;"	d	file:
 SRC_DIR	Makefile	/^SRC_DIR = $(ROOT_DIR)\/src$/;"	m
 STRIP	Makefile	/^STRIP = $(CROSS_COMPILE)strip$/;"	m
 TCP_CLTS	include/conn_common.h	7;"	d
 TCP_PORT	include/conn_common.h	6;"	d
 TEST_DIR	Makefile	/^TEST_DIR = $(ROOT_DIR)\/test$/;"	m
 UDP_PORT	include/conn_common.h	10;"	d
-__CHS_CTR_C__	src/process/chs_ctr.c	2;"	d	file:
-__CHS_CTR_C__	src/process/chs_ctr.c	67;"	d	file:
+__CHS_CTR_C__	srv_src/process/id_process/chs_ctr.c	2;"	d	file:
+__CHS_CTR_C__	srv_src/process/id_process/chs_ctr.c	67;"	d	file:
 __CHS_CTR_H__	include/process/chs_ctr.h	3;"	d
-__CHS_CT_C__	src/process/chs_ct.c	2;"	d	file:
-__CHS_CT_C__	src/process/chs_ct.c	70;"	d	file:
+__CHS_CT_C__	srv_src/process/id_process/chs_ct.c	2;"	d	file:
+__CHS_CT_C__	srv_src/process/id_process/chs_ct.c	70;"	d	file:
 __CHS_CT_H__	include/process/chs_ct.h	3;"	d
-__CHS_PV_C__	src/process/chs_pv.c	2;"	d	file:
-__CHS_PV_C__	src/process/chs_pv.c	69;"	d	file:
+__CHS_PV_C__	srv_src/process/id_process/chs_pv.c	2;"	d	file:
+__CHS_PV_C__	srv_src/process/id_process/chs_pv.c	69;"	d	file:
 __CHS_PV_H__	include/process/chs_pv.h	3;"	d
-__CLT_ITEM_C__	src/server/clt_item.c	104;"	d	file:
-__CLT_ITEM_C__	src/server/clt_item.c	2;"	d	file:
-__CLT_ITEM_H__	include/server/clt_item.h	3;"	d
+__CLT_ITEM_C__	srv_src/server/clt_item.c	2;"	d	file:
+__CLT_ITEM_C__	srv_src/server/clt_item.c	88;"	d	file:
+__CLT_ITEM_H__	include/server/clt_item.h	2;"	d
 __COMMON_H__	include/common.h	3;"	d
 __CONN_COMMON_H__	include/conn_common.h	3;"	d
-__CONN_TCP_C__	src/server/conn_tcp.c	198;"	d	file:
-__CONN_TCP_C__	src/server/conn_tcp.c	1;"	d	file:
+__CONN_TCP_C__	srv_src/conn/conn_tcp.c	193;"	d	file:
+__CONN_TCP_C__	srv_src/conn/conn_tcp.c	1;"	d	file:
 __CONN_TCP_H__	include/server/conn_tcp.h	2;"	d
 __CONN_TCP_H__	include/server/tcpserver.h	3;"	d
 __CONN_UDP_H__	include/server/conn_udp.h	2;"	d
 __C_KERNEL_H__	include/util/c_kernel.h	2;"	d
 __C_LIST_H__	include/util/c_list.h	2;"	d
-__ID_CHS_C__	src/process/id_chs.c	124;"	d	file:
-__ID_CHS_C__	src/process/id_chs.c	2;"	d	file:
+__ID_CHS_C__	srv_src/process/id_process/id_chs.c	124;"	d	file:
+__ID_CHS_C__	srv_src/process/id_process/id_chs.c	2;"	d	file:
 __ID_CHS_H__	include/process/id_chs.h	3;"	d
-__PROCESS_CORE_C__	src/server/process_server.c	2;"	d	file:
+__PROCESS_CORE_C__	srv_src/process/process_core.c	2;"	d	file:
 __PROCESS_CORE_H__	include/process/process_core.h	3;"	d
 __PROCESS_CORE_H__	include/server/process_server.h	3;"	d
 __PROCESS_H__	include/process/process.h	2;"	d
-__PROCESS_SERVER_C__	src/server/process_server.c	123;"	d	file:
+__PROCESS_SERVER_C__	srv_src/process/process_core.c	126;"	d	file:
+__SERVER_CORE_C__	srv_src/server/server.c	61;"	d	file:
 __SERVER_CORE_H__	include/server/server_core.h	3;"	d
-__SERVER_C__	src/server/server.c	2;"	d	file:
-__SERVER_C__	src/server/server.c	42;"	d	file:
+__SERVER_core_C__	srv_src/server/server.c	2;"	d	file:
 __list_add	include/util/c_list.h	/^static inline void __list_add(struct list_head *new,$/;"	f
 __list_del	include/util/c_list.h	/^static inline void __list_del(struct list_head * prev, struct list_head * next)$/;"	f
 __list_del_entry	include/util/c_list.h	/^static inline void __list_del_entry(struct list_head *entry)$/;"	f
@@ -123,46 +123,44 @@ ci_type	include/server/clt_item.h	/^	enum eclt_type ci_type; \/\/client type$/;"
 ci_wbuf	include/server/clt_item.h	/^	char ci_wbuf[MAX_RECV_LEN];$/;"	m	struct:clt_item
 ci_wlen	include/server/clt_item.h	/^	size_t ci_wlen;$/;"	m	struct:clt_item
 city	include/process/chs_ct.h	/^typedef struct city{$/;"	s
-city_init	src/process/chs_ct.c	/^int city_init(const char* ct_fnm){$/;"	f
-city_release	src/process/chs_ct.c	/^void city_release(void){$/;"	f
-clt_add	src/server/clt_item.c	/^extern void clt_add(CLT_T* pclt){$/;"	f
-clt_flush	src/server/clt_item.c	/^void clt_flush(struct server* pserver){$/;"	f
-clt_fresh	src/server/clt_item.c	/^void clt_fresh(CLT_T* pclt){$/;"	f
-clt_init	src/server/clt_item.c	/^extern void clt_init(CLT_T* pclt){$/;"	f
-clt_is_timeout	src/server/clt_item.c	/^static bool clt_is_timeout(CLT_T* pclt){$/;"	f	file:
+city_init	srv_src/process/id_process/chs_ct.c	/^int city_init(const char* ct_fnm){$/;"	f
+city_release	srv_src/process/id_process/chs_ct.c	/^void city_release(void){$/;"	f
+clt_add	srv_src/server/clt_item.c	/^extern void clt_add(CLT_T* pclt){$/;"	f
+clt_flush	srv_src/server/clt_item.c	/^void clt_flush(void){$/;"	f
+clt_fresh	srv_src/server/clt_item.c	/^void clt_fresh(CLT_T* pclt){$/;"	f
+clt_init	srv_src/server/clt_item.c	/^extern void clt_init(CLT_T* pclt){$/;"	f
+clt_is_timeout	srv_src/server/clt_item.c	/^static bool clt_is_timeout(CLT_T* pclt){$/;"	f	file:
 clt_item	include/server/clt_item.h	/^typedef struct clt_item{$/;"	s
-clt_malloc	src/server/clt_item.c	/^CLT_T* clt_malloc(void){$/;"	f
-clt_recv_thread	src/server/clt_item.c	/^void* clt_recv_thread(void* pdata){$/;"	f
-clt_send	src/server/clt_item.c	/^void clt_send(CLT_T* pclt){$/;"	f
+clt_malloc	srv_src/server/clt_item.c	/^CLT_T* clt_malloc(void){$/;"	f
 clts_fds	include/server/server_core.h	/^	fd_set clts_fds;	\/\/client read fd_set$/;"	m	struct:server_data
 container_of	include/util/c_kernel.h	24;"	d
 country	include/process/chs_ctr.h	/^typedef struct country{$/;"	s
-country_init	src/process/chs_ctr.c	/^int country_init(const char* ctr_fnm){$/;"	f
-country_release	src/process/chs_ctr.c	/^void country_release(void){$/;"	f
-ct_head	src/process/chs_ct.c	/^static CT_T* ct_head;$/;"	v	file:
+country_init	srv_src/process/id_process/chs_ctr.c	/^int country_init(const char* ctr_fnm){$/;"	f
+country_release	srv_src/process/id_process/chs_ctr.c	/^void country_release(void){$/;"	f
+ct_head	srv_src/process/id_process/chs_ct.c	/^static CT_T* ct_head;$/;"	v	file:
 ct_id	include/process/chs_ct.h	/^	unsigned int ct_id;		\/\/city id$/;"	m	struct:city
 ct_nm	include/process/chs_ct.h	/^	char ct_nm[128];	\/\/city name $/;"	m	struct:city
-ctr_head	src/process/chs_ctr.c	/^static CTR_T* ctr_head;$/;"	v	file:
+ctr_head	srv_src/process/id_process/chs_ctr.c	/^static CTR_T* ctr_head;$/;"	v	file:
 ctr_id	include/process/chs_ctr.h	/^	unsigned int ctr_id;$/;"	m	struct:country
 ctr_nm	include/process/chs_ctr.h	/^	char ctr_nm[128];$/;"	m	struct:country
-do_cli	src/client/udpclient.c	/^void do_cli(FILE *fp, int sockfd, struct sockaddr *pservaddr, socklen_t servlen)$/;"	f
-do_echo	src/server/udpserver.c	/^void do_echo(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen)$/;"	f
+do_cli	clt_src/udpclient.c	/^void do_cli(FILE *fp, int sockfd, struct sockaddr *pservaddr, socklen_t servlen)$/;"	f
+do_echo	srv_src/conn/conn_udp.c	/^void do_echo(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen)$/;"	f
 eclt_type	include/server/clt_item.h	/^enum eclt_type{$/;"	g
-flush_sys	src/server/server.c	/^void flush_sys(void){$/;"	f
-get_server	src/server/server.c	/^struct server_data* get_server(void){$/;"	f
-id_check	src/process/id_chs.c	/^int id_check(const char* id_num, int id_len){$/;"	f
+flush_sys	srv_src/server/server.c	/^void flush_sys(void){$/;"	f
+get_server	srv_src/server/server.c	/^struct server_data* get_server(void){$/;"	f
+id_check	srv_src/process/id_process/id_chs.c	/^int id_check(const char* id_num, int id_len){$/;"	f
 id_data	include/process/id_chs.h	/^struct id_data {$/;"	s
-id_lastnum_chk_ok	src/process/id_chs.c	/^int id_lastnum_chk_ok(const char* id_num){$/;"	f
+id_lastnum_chk_ok	srv_src/process/id_process/id_chs.c	/^int id_lastnum_chk_ok(const char* id_num){$/;"	f
 id_num	include/process/id_chs.h	/^	char id_num[CHS_ID_LEN];$/;"	m	struct:id_data
-id_parse	src/process/id_chs.c	/^enum pd_stat id_parse(const char* id_num, ssize_t id_len, char* retstr, ssize_t*retlen){$/;"	f
-id_parse_deal	src/process/id_chs.c	/^int id_parse_deal(PD_T* pd){$/;"	f
-id_parse_exit	src/process/id_chs.c	/^void id_parse_exit(void){$/;"	f
-id_parse_init	src/process/id_chs.c	/^int id_parse_init(const char* pm_ctr){$/;"	f
-id_process_method	src/process/id_chs.c	/^PM_T id_process_method = {$/;"	v
+id_parse	srv_src/process/id_process/id_chs.c	/^enum pd_stat id_parse(const char* id_num, ssize_t id_len, char* retstr, ssize_t*retlen){$/;"	f
+id_parse_deal	srv_src/process/id_process/id_chs.c	/^int id_parse_deal(PD_T* pd){$/;"	f
+id_parse_exit	srv_src/process/id_process/id_chs.c	/^void id_parse_exit(void){$/;"	f
+id_parse_init	srv_src/process/id_process/id_chs.c	/^int id_parse_init(const char* pm_ctr){$/;"	f
+id_process_method	srv_src/process/id_process/id_chs.c	/^PM_T id_process_method = {$/;"	v
 id_ret	include/process/id_chs.h	/^	char id_ret[CHS_ADDR_LEN];$/;"	m	struct:id_data
-id_to_city	src/process/chs_ct.c	/^int id_to_city(unsigned int ct_id, char* ct_nm, ssize_t ct_len){$/;"	f
-id_to_country	src/process/chs_ctr.c	/^int id_to_country(unsigned int ctr_id, char* ctr_nm, ssize_t ctr_len){$/;"	f
-id_to_province	src/process/chs_pv.c	/^int id_to_province(unsigned int pv_id, char* pv_nm, ssize_t pv_len){$/;"	f
+id_to_city	srv_src/process/id_process/chs_ct.c	/^int id_to_city(unsigned int ct_id, char* ct_nm, ssize_t ct_len){$/;"	f
+id_to_country	srv_src/process/id_process/chs_ctr.c	/^int id_to_country(unsigned int ctr_id, char* ctr_nm, ssize_t ctr_len){$/;"	f
+id_to_province	srv_src/process/id_process/chs_pv.c	/^int id_to_province(unsigned int pv_id, char* pv_nm, ssize_t pv_len){$/;"	f
 list_add	include/util/c_list.h	/^static inline void list_add(struct list_head *new, struct list_head *head)$/;"	f
 list_add_tail	include/util/c_list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head)$/;"	f
 list_del	include/util/c_list.h	/^static inline void list_del(struct list_head *entry)$/;"	f
@@ -196,10 +194,10 @@ list_prev_entry	include/util/c_list.h	252;"	d
 list_replace	include/util/c_list.h	/^static inline void list_replace(struct list_head *old,$/;"	f
 list_replace_init	include/util/c_list.h	/^static inline void list_replace_init(struct list_head *old,$/;"	f
 list_safe_reset_next	include/util/c_list.h	437;"	d
-main	src/client/tcpclient.c	/^int main(int argc,char *argv[])$/;"	f
-main	src/client/udpclient.c	/^int main(int argc, char **argv)$/;"	f
-main	src/main.c	/^int main(int argc, char* argv[]){$/;"	f
-main	src/server/udpserver.c	/^int main(void)$/;"	f
+main	clt_src/tcpclient.c	/^int main(int argc,char *argv[])$/;"	f
+main	clt_src/udpclient.c	/^int main(int argc, char **argv)$/;"	f
+main	srv_src/conn/conn_udp.c	/^int main(void)$/;"	f
+main	srv_src/main.c	/^int main(int argc, char* argv[]){$/;"	f
 method_stat	include/server/process_server.h	/^enum method_stat{$/;"	g
 next	include/process/chs_ct.h	/^	struct city* next;	\/\/when city retrieve$/;"	m	struct:city	typeref:struct:city::city
 next	include/process/chs_ctr.h	/^	struct country* next;$/;"	m	struct:country	typeref:struct:country::country
@@ -226,47 +224,46 @@ pm_list	include/server/process_server.h	/^	struct list_head pm_list;$/;"	m	struc
 pm_rtv	include/server/process_server.h	/^	struct timeval pm_rtv;	\/\/start time$/;"	m	struct:process_method	typeref:struct:process_method::timeval
 pm_sem	include/server/process_server.h	/^	sem_t pm_sem;$/;"	m	struct:process_method
 pm_stat	include/server/process_server.h	/^	enum method_stat pm_stat;	\/\/method stat$/;"	m	struct:process_method	typeref:enum:process_method::method_stat
-post_server	src/server/server.c	/^void post_server(void){$/;"	f
-ppm_tab	src/server/process_server.c	/^static PM_T* ppm_tab[MAX_METHOD] = {$/;"	v	file:
+post_server	srv_src/server/server.c	/^void post_server(void){$/;"	f
+ppm_tab	srv_src/process/process_core.c	/^static PM_T* ppm_tab[MAX_METHOD] = {$/;"	v	file:
 prev	include/util/c_list.h	/^	struct list_head *prev, *next;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
 prew	include/process/process_core.h	/^	struct process_data* prew;$/;"	m	struct:process_data	typeref:struct:process_data::process_data
 process_data	include/process/process_core.h	/^typedef struct process_data{$/;"	s
-process_deal	src/server/process_server.c	/^int process_deal(PD_T* pd){$/;"	f
-process_exit	src/server/process_server.c	/^void process_exit(void){$/;"	f
-process_flush	src/server/process_server.c	/^void process_flush(void){$/;"	f
-process_init	src/server/process_server.c	/^int process_init(void){$/;"	f
+process_deal	srv_src/process/process_core.c	/^int process_deal(CLT_T* pclt){$/;"	f
+process_exit	srv_src/process/process_core.c	/^void process_exit(void){$/;"	f
+process_flush	srv_src/process/process_core.c	/^void process_flush(void){$/;"	f
+process_init	srv_src/process/process_core.c	/^int process_init(void){$/;"	f
 process_method	include/server/process_server.h	/^typedef struct process_method{$/;"	s
-process_thread	src/server/process_server.c	/^void* process_thread(void* pdata){$/;"	f
+process_thread	srv_src/process/process_core.c	/^void* process_thread(void* pdata){$/;"	f
 province	include/process/chs_pv.h	/^typedef struct province{$/;"	s
-province_init	src/process/chs_pv.c	/^int province_init(const char* pv_fnm){$/;"	f
-province_release	src/process/chs_pv.c	/^void province_release(void){$/;"	f
-pv_head	src/process/chs_pv.c	/^static PV_T* pv_head;$/;"	v	file:
+province_init	srv_src/process/id_process/chs_pv.c	/^int province_init(const char* pv_fnm){$/;"	f
+province_release	srv_src/process/id_process/chs_pv.c	/^void province_release(void){$/;"	f
+pv_head	srv_src/process/id_process/chs_pv.c	/^static PV_T* pv_head;$/;"	v	file:
 pv_id	include/process/chs_pv.h	/^	unsigned int pv_id;$/;"	m	struct:province
 pv_nm	include/process/chs_pv.h	/^	char pv_nm[128];$/;"	m	struct:province
-sd	src/server/server.c	/^static struct server_data* sd = NULL;$/;"	v	typeref:struct:server_data	file:
-sd_clt_head	include/server/server_core.h	/^	struct list_head sd_clt_head;$/;"	m	struct:server_data	typeref:struct:server_data::list_head
-sd_clt_recv_pid	include/server/server_core.h	/^	pthread_t sd_clt_recv_pid;$/;"	m	struct:server_data
-sd_connflag	include/server/server_core.h	/^	unsigned int sd_connflag;$/;"	m	struct:server_data
-sd_pd_head	include/server/server_core.h	/^	struct list_head sd_pd_head;$/;"	m	struct:server_data	typeref:struct:server_data::list_head
+sd	srv_src/server/server.c	/^static struct server_data* sd = NULL;$/;"	v	typeref:struct:server_data	file:
+sd_clt_head	include/server/server_core.h	/^	struct list_head sd_clt_head;	\/\/client list head$/;"	m	struct:server_data	typeref:struct:server_data::list_head
+sd_connflag	include/server/server_core.h	/^	bool sd_connflag;	\/\/connect is set$/;"	m	struct:server_data
+sd_pm_head	include/server/server_core.h	/^	struct list_head sd_pm_head;	\/\/process method list head$/;"	m	struct:server_data	typeref:struct:server_data::list_head
 sd_prcs_pid	include/server/server_core.h	/^	pthread_t sd_prcs_pid;	\/\/process thread id$/;"	m	struct:server_data
 sd_sem	include/server/server_core.h	/^	sem_t sd_sem;	\/\/server semephore$/;"	m	struct:server_data
 sd_tcp_pid	include/server/server_core.h	/^	pthread_t sd_tcp_pid;	\/\/tcp receive thread id $/;"	m	struct:server_data
-sd_tcpconf	include/server/server_core.h	/^	struct tcp_data sd_tcpconf;$/;"	m	struct:server_data	typeref:struct:server_data::tcp_data
+sd_tcpconf	include/server/server_core.h	/^	struct tcp_data sd_tcpconf;	\/\/$/;"	m	struct:server_data	typeref:struct:server_data::tcp_data
 sd_udpconf	include/server/server_core.h	/^	struct udp_data sd_udpconf;$/;"	m	struct:server_data	typeref:struct:server_data::udp_data
 server_data	include/server/server_core.h	/^struct server_data{$/;"	s
-server_init	src/server/server.c	/^int server_init(void* conf){$/;"	f
-sfd	src/server/conn_tcp.c	/^static int sfd;	\/\/tcp server socket$/;"	v	file:
+server_init	srv_src/server/server.c	/^int server_init(void){$/;"	f
+sfd	srv_src/conn/conn_tcp.c	/^static int sfd;	\/\/tcp server socket$/;"	v	file:
 swap	include/util/c_kernel.h	14;"	d
-tcp_clt_data_recv	src/server/conn_tcp.c	/^void* tcp_clt_data_recv(void* pdata){$/;"	f
-tcp_clt_data_send	src/server/conn_tcp.c	/^void* tcp_clt_data_send(void* pdata){$/;"	f
+tcp_clt_data_recv	srv_src/conn/conn_tcp.c	/^void* tcp_clt_data_recv(void* pdata){$/;"	f
+tcp_clt_data_send	srv_src/conn/conn_tcp.c	/^void* tcp_clt_data_send(void* pdata){$/;"	f
 tcp_data	include/server/conn_tcp.h	/^struct tcp_data{$/;"	s
-tcp_domain	include/server/conn_tcp.h	/^	int tcp_domain;	\/\/ domain indicate$/;"	m	struct:tcp_data
-tcp_init	src/server/conn_tcp.c	/^int tcp_init(struct tcp_data* pdata)$/;"	f
-tcp_max_lstn	include/server/conn_tcp.h	/^	size_t tcp_max_lstn;	\/\/max listen$/;"	m	struct:tcp_data
-tcp_port	include/server/conn_tcp.h	/^	unsigned short tcp_port;$/;"	m	struct:tcp_data
-tcp_recv_pid	include/server/conn_tcp.h	/^	pthread_t tcp_recv_pid;$/;"	m	struct:tcp_data
-tcp_send_pid	include/server/conn_tcp.h	/^	pthread_t tcp_send_pid;$/;"	m	struct:tcp_data
-tcp_sfd	include/server/conn_tcp.h	/^	int tcp_sfd;$/;"	m	struct:tcp_data
-tcp_thread	src/server/conn_tcp.c	/^void tcp_thread(void* pdata){$/;"	f
-uc_port	include/server/conn_udp.h	/^	unsigned short uc_port;$/;"	m	struct:udp_data
+tcp_domain	include/server/conn_tcp.h	/^	int tcp_domain;		\/\/ tcp server domain indicate$/;"	m	struct:tcp_data
+tcp_init	srv_src/conn/conn_tcp.c	/^int tcp_init(void)$/;"	f
+tcp_max_lstn	include/server/conn_tcp.h	/^	size_t tcp_max_lstn;	\/\/max server listen number$/;"	m	struct:tcp_data
+tcp_port	include/server/conn_tcp.h	/^	unsigned short tcp_port;	\/\/tcp server port$/;"	m	struct:tcp_data
+tcp_recv_pid	include/server/conn_tcp.h	/^	pthread_t tcp_recv_pid;	\/\/tcp client data recieve thread id$/;"	m	struct:tcp_data
+tcp_send_pid	include/server/conn_tcp.h	/^	pthread_t tcp_send_pid;	\/\/tcp client data send thread id$/;"	m	struct:tcp_data
+tcp_sfd	include/server/conn_tcp.h	/^	int tcp_sfd;		\/\/tcp server socket file descriptor$/;"	m	struct:tcp_data
+tcp_thread	srv_src/conn/conn_tcp.c	/^void tcp_thread(void* pdata){$/;"	f
+ud_port	include/server/conn_udp.h	/^	unsigned short ud_port;$/;"	m	struct:udp_data
 udp_data	include/server/conn_udp.h	/^struct udp_data{$/;"	s

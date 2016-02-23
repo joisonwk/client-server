@@ -3,15 +3,14 @@
 #define __SERVER_CORE_H__
 #define SERVER_CONF_FILE	"server.conf"
 #include <sys/select.h>
+#include <semaphore.h>
 #include <sys/types.h>
 #include <util/c_list.h>
-#include <server/clt_item.h>
-#include <server/process_core.h>
-#include <server/conn_tcp.h>
+#include <conn/conn_tcp.h>
+#include <conn/conn_udp.h>
 
 struct server_data{
 	sem_t sd_sem;	//server semephore
-	bool sd_connflag;	//connect is set
 
 	/*connect configure struct*/
 	struct tcp_data sd_tcpconf;	//

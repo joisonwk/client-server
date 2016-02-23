@@ -53,14 +53,15 @@ int country_init(const char* ctr_fnm){
 	if(strline){
 		free(strline);
 	}
+	printf("loading city information from %s success\n", ctr_fnm);
 }
 
 void country_release(void){
-	CTR_T* index = NULL ;
-	while(ctr_head){
-		index = ctr_head;
+	CTR_T* index = ctr_head;
+	while(index){
+		ctr_head = index->next;
 		free(index);
-		ctr_head = ctr_head->next;
+		index = ctr_head;
 	}
 }
 

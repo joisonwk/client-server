@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <server/server_core.h>
-#include <server/conn_tcp.h>
+#include <conn/conn_tcp.h>
 #include <server/clt_item.h>
-#include <server/process_server.h>
+#include <process/process_core.h>
 
 static struct server_data* sd = NULL;
 
@@ -24,7 +24,7 @@ void flush_sys(void){
 //int server_init(void* conf){	//uncomplete
 int server_init(void){
 	if(sd == NULL){
-		sd = (struct server_data*)malloc(struct server_data);	
+		sd = (struct server_data*)malloc(sizeof(struct server_data));	
 		if(sd==NULL){
 			perror("initiate server failed\n");
 			return -1;
@@ -34,14 +34,13 @@ int server_init(void){
 	}
 
 	/*initiate the udp server struct*/
-	sd->sd_tcpconf.ud_port = UDP_PORT;
+	sd->sd_udpconf.ud_port = UDP_PORT;
 	sd->sd_tcpconf.tcp_port = TCP_PORT;
-	sd->sd_connflag = false;
 	sem_init(&sd->sd_sem, 0, 1);	//initiate the semaphere with 1 value
 	INIT_LIST_HEAD(&sd->sd_clt_head);	
-	INIT_LIST_HEAD(&sd->sd_pd_head);
+	//INIT_LIST_HEAD(&sd->sd_pm_head);	uncomplete
 
-	return 0
+	return 0;
 }
 
 struct server_data* get_server(void){

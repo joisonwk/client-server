@@ -17,6 +17,7 @@ struct tcp_data{
 
 /*tcp client recieve data thread func*/
 static void* tcp_clt_data_recv(void* pdata);
+static int tcp_init(void);
 /*tcp client send data thread func*/
 static void* tcp_clt_data_send(void* pdata);
 

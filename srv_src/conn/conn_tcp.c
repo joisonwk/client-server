@@ -7,28 +7,33 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <errno.h>
 
 /*from self include direcotry*/
 #include <util/c_kernel.h>
+#include <util/c_list.h>
 #include <server/server_core.h>
+#include <server/clt_item.h>
 #include <common.h>
-#include <server/conn_tcp.h>
+#include <conn/conn_tcp.h>
 
-static int sfd;	//tcp server socket
+static int sfd = 0;	//tcp server socket
 
 /*create tcp server*/
 int tcp_init(void)
 {
-	int sfd;
 	struct sockaddr_in server_addr;
 	int tcp_domain;
 	struct tcp_data* ptd = NULL;
 	struct server_data* psd = get_server();
-	ptd = psd->sd_tcpconf;
+	if(psd==NULL)
+		return -1;
+	ptd = &psd->sd_tcpconf;
 	post_server();
 
-	if(psd->sd_tcpconf==NULL){
+	if(ptd==NULL){
 		printf("tcp config is empty\n");
 		return -1;
 	}
@@ -66,50 +71,63 @@ int tcp_init(void)
     
 	//N connection requests will be queued before further requests are refused.
 	if(ptd->tcp_max_lstn <= 0)
-		pdata->tcp_max_lstn = DEFAULT_LSTNUM;
-	if(listen(sfd,pdata->tcp_max_lstn)==-1)
+		ptd->tcp_max_lstn = DEFAULT_LSTNUM;
+	if(listen(sfd,ptd->tcp_max_lstn)==-1)
 	{
 		perror("listen");
 		close(sfd);
 		return -1;
 	}
 	ptd->tcp_sfd = sfd;
-	psd->sd_conn_flag = true;
 
+	printf("tcp init success, server socket fd =%d\n", sfd);
 	return 0;
 }
 
 /*receive client connection and insert to client stack*/
-void tcp_thread(void* pdata){
+void* tcp_thread(void* pdata){
 	struct server_data *psd = NULL;
 	struct tcp_data* ptd;
-	int clt_fd, srv_fd;
+	int clt_fd;
 	struct sockaddr_in cli_addr;
 	int sin_size = sizeof(struct sockaddr_in);
 	
 	psd = get_server();
 	ptd = &psd->sd_tcpconf;
 	post_server();
-	if(tcp_init(&psd->sd_tcpconf)) {
+
+	if(tcp_init()) {
 		perror("init tcp server failed\n");
 		pthread_exit(NULL);	
 	}
 
-	pthread_create(ptd->tcp_recv_pid,NULL,tcp_clt_data_recv,NULL);
-	pthread_create(ptd->tcp_send_pid,NULL,tcp_clt_data_send,NULL);
+	if(pthread_create(&ptd->tcp_recv_pid,NULL,tcp_clt_data_recv,NULL)){
+		printf("create tcp client data recieve thread failed\n");
+		pthread_exit(NULL);
+	}else{
+		printf("create tcp client data recieve thread success, pid=%d\n", ptd->tcp_recv_pid);
+	}
+	if(pthread_create(&ptd->tcp_send_pid,NULL,tcp_clt_data_send,NULL)){
+		printf("create tcp client data send thread failed\n");
+		pthread_exit(NULL);
+	}else{
+		printf("create tcp client data send thread success, pid=%d\n", ptd->tcp_send_pid);
+	}
 
 	while(1){
-		clt_fd = accept(srv_fd, (struct sockaddr_in*)&cli_addr, &sin_size);
+		clt_fd = accept(sfd, (struct sockaddr*)&cli_addr, &sin_size);
 		if(clt_fd == -1){
 			perror("accept failed");
 			pthread_exit(NULL);
+		}else{
+			printf("recieved client socket fd=%d\n", clt_fd);
 		}
 
 		CLT_T* pclt_item = NULL;
 		pclt_item = clt_malloc();
 		if(pclt_item == NULL){
 			char tbuf[128] = "server have no memory";
-			send(clt_fd, tbuf, strlen(tbuf));
+			send(clt_fd, tbuf, strlen(tbuf), 0);
 			close(clt_fd);
 			continue;
 		}
@@ -119,11 +137,17 @@ void tcp_thread(void* pdata){
 		pclt_item->ci_cfd = clt_fd;
 		pclt_item->ci_type = ECT_TCP;
 		/*set tcp client socket as noblocking*/
-		int flag = fcntl(clt_fd, F_FDGET, NULL);
+		int flag = fcntl(clt_fd, F_GETFD, NULL);
 		flag |= O_NONBLOCK;
-		fcntl(clt_fd, F_FDSET,&flag);
+		fcntl(clt_fd, F_SETFD,&flag);
 
-		clt_add(pclt_item);
+		/*insert client to list failed close the client socket and release it*/
+		if(clt_add(pclt_item)){
+			clt_release(pclt_item);
+			free(pclt_item);
+			close(clt_fd);
+			continue;
+		}
 		
 		pclt_item->ci_cfd = clt_fd;
 	}
@@ -138,19 +162,20 @@ void tcp_thread(void* pdata){
 /*tcp client receive data from client socket*/
 void* tcp_clt_data_recv(void* pdata){
 	CLT_T* pclt = NULL;
-	struct server_data psd = get_server();
-	struct list_head* phead = psd->sd_clt_head;
+	struct server_data* psd = get_server();
+	struct list_head* phead = &psd->sd_clt_head;
 	post_server();
 	while(1){
-		list_for_each_entry(pclt,phead, ci_head){
+		list_for_each_entry(pclt,phead, ci_list){
 			/*recieve data*/
 			if(pclt->ci_type==ECT_TCP && !sem_trywait(&pclt->ci_sem)){
 				int cfd = pclt->ci_cfd;
 				char* rbuf = pclt->ci_rbuf;
-				int rlen = pclt->ci_rlen
+				int bufsize = sizeof(pclt->ci_rbuf);
+				int rlen = pclt->ci_rlen;
 				int rcvret = 0;
 				/*does the recv func will block?*/
-				rcvret = recv(ci_cfd,rbuf+rlen,bufsize-rlen);
+				rcvret = recv(cfd,rbuf+rlen,bufsize-rlen,0);
 				if(rcvret > 0){
 					pclt->ci_rlen += rcvret;
 					clt_fresh(pclt);
@@ -164,20 +189,22 @@ void* tcp_clt_data_recv(void* pdata){
 void* tcp_clt_data_send(void* pdata){
 	CLT_T* pclt = NULL;
 	struct server_data* psd = get_server();
-	struct list_head* phead = psd->sd_clt_head;
+	struct list_head* phead = &psd->sd_clt_head;
 	post_server();
 	while(1){
-		list_for_each_entry(){
+		list_for_each_entry(pclt,phead,ci_list){
 			if(pclt->ci_type==ECT_TCP && !sem_trywait(&pclt->ci_sem)){
 				int cfd = pclt->ci_cfd;
 				int wlen = pclt->ci_wlen;
 				char* wbuf = pclt->ci_wbuf;
-				int offset = sndret = 0;
-				int rept = 3;
+				int offset,sndret;
+				offset = sndret = 0;
+				int rept = 3;	//repeat thread times if failed
 				while(wlen>0 && rept >0){
-					sndret = send(cfd, wbuf+offset,wlen);		
+					sndret = send(cfd, wbuf+offset,wlen,0);		
 					sndret>0? (wlen-=sndret,offset+=sndret):(rept--);
 				}
+				/*move not sended data to buf header*/
 				if(wlen>0){
 					pclt->ci_wlen = wlen;
 					memcpy(wbuf,wbuf+offset,wlen);
