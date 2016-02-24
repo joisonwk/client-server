@@ -22,7 +22,6 @@ int id_to_country(const char* ctr_id, char* ctr_nm, ssize_t ctr_len){
 }
 
 int country_init(const char* ctr_fnm){
-	printf("ctr_fnm=%s\n", ctr_fnm);
 	FILE* fp = NULL;
 	char* strline = NULL;
 	int llen = 0;
@@ -45,7 +44,6 @@ int country_init(const char* ctr_fnm){
 	/*loading country info to country list*/
 	int getlen = 0;
 	while(-1 != getline(&strline, &llen, fp)){
-		printf("[%d]strline[%s]\n", strline);
 		CTR_T* pctr = (CTR_T*)malloc(sizeof(CTR_T));
 		if(pctr == NULL){
 			perror("allocate country structure failed");

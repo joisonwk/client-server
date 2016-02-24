@@ -1,4 +1,5 @@
 #Makefile
+#CC = /home/joison/invengo-work/usr/local/arm/3.4.1/bin/arm-linux-gcc
 CC = gcc
 #target name
 TARGET = server-bin

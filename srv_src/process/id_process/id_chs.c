@@ -46,7 +46,6 @@ void id_parse(const char* id_num, int id_len, char* retstr, int *retlen){
 
 /**/
 void id_parse_deal(CLT_T* pclt){
-	printf("%s\n", __func__);
 	char id_buf[CHS_ID_LEN], addr_buf[CHS_ADDR_LEN];
 	int id_len = CHS_ID_LEN;
 	int addrlen = CHS_ADDR_LEN;
