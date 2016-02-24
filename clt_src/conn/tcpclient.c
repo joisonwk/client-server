@@ -43,9 +43,10 @@ int tcp_init(struct conn_item* pdata)
 }
     
 int id_to_addr(const char* id_buf,char* addr_buf, int* paddrlen){
-    	if(send(pci->ci_sockfd,id_buf,strlen(id_buf),0)==-1)
+	printf("socket fd = %d, id_buf=%s\n",sockfd, id_buf);
+    	if(send(sockfd,id_buf,strlen(id_buf),0)==-1)
     	{
-		printf("send failed");
+		perror("send failed");
 		if(tcp_init(pci)){
 			if(-1==send(pci->ci_sockfd,id_buf,strlen(id_buf),0)){
 				perror("send");
@@ -54,11 +55,12 @@ int id_to_addr(const char* id_buf,char* addr_buf, int* paddrlen){
 		}
     	}
     
-    	if((*paddrlen= recv(pci->ci_sockfd,addr_buf,*paddrlen,0))==-1)
+    	if((*paddrlen= recv(sockfd,addr_buf,*paddrlen,0))==-1)
     	{
         	perror("recv");
 		return -2;
     	}
+	printf("id address = %s\n", addr_buf);
 
     	addr_buf[*paddrlen] = '\0'; 
     	return 0;

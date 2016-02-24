@@ -3,7 +3,7 @@
 #define __CONN_COMMON_H__
 
 /*tcp default define*/
-#define TCP_PORT 2323
+#define TCP_PORT 2324
 #define TCP_CLTS 16
 
 /*udp default define*/

@@ -15,7 +15,7 @@ typedef void (*PM_DEAL)(CLT_T* pclt);
 typedef void (*PM_EXIT)(void);
 
 typedef struct process_method{
-	unsigned char pm_ctrl_file[512];
+	char pm_ctrl_file[512];
 	unsigned char pm_header[20];
 	enum pm_stat pm_stat;
 	struct timeval pm_lasttime;	

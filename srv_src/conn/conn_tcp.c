@@ -80,7 +80,7 @@ int tcp_init(void)
 	}
 	ptd->tcp_sfd = sfd;
 
-	printf("tcp init success, server socket fd =%d\n", sfd);
+	//printf("tcp init success, server socket fd =%d\n", sfd);
 	return 0;
 }
 
@@ -148,6 +148,7 @@ void* tcp_thread(void* pdata){
 			close(clt_fd);
 			continue;
 		}
+		printf("add client %d to list success\n", clt_fd);
 		
 		pclt_item->ci_cfd = clt_fd;
 	}
@@ -170,17 +171,22 @@ void* tcp_clt_data_recv(void* pdata){
 			/*recieve data*/
 			if(pclt->ci_type==ECT_TCP && !sem_trywait(&pclt->ci_sem)){
 				int cfd = pclt->ci_cfd;
+				//printf("[%d] sem is locking by recv thread....\n", cfd);
 				char* rbuf = pclt->ci_rbuf;
 				int bufsize = sizeof(pclt->ci_rbuf);
 				int rlen = pclt->ci_rlen;
 				int rcvret = 0;
 				/*does the recv func will block?*/
-				rcvret = recv(cfd,rbuf+rlen,bufsize-rlen,0);
+				rcvret = recv(cfd,rbuf+rlen,bufsize-rlen,MSG_DONTWAIT);
 				if(rcvret > 0){
+					printf("[%d] RECV [%s]\n", cfd, rbuf);
 					pclt->ci_rlen += rcvret;
+					printf("%s%d",__func__,__LINE__);
 					clt_fresh(pclt);
+					printf("%s%d",__func__,__LINE__);
 				}
 				sem_post(&pclt->ci_sem);
+				//printf("[%d] sem is unlocked\n", cfd);
 			}
 		}
 	}
@@ -195,26 +201,28 @@ void* tcp_clt_data_send(void* pdata){
 		list_for_each_entry(pclt,phead,ci_list){
 			if(pclt->ci_type==ECT_TCP && !sem_trywait(&pclt->ci_sem)){
 				int cfd = pclt->ci_cfd;
+				//printf("[%d] is locking by send thread\n",cfd);
 				int wlen = pclt->ci_wlen;
 				char* wbuf = pclt->ci_wbuf;
 				int offset,sndret;
 				offset = sndret = 0;
 				int rept = 3;	//repeat thread times if failed
 				while(wlen>0 && rept >0){
-					sndret = send(cfd, wbuf+offset,wlen,0);		
+					sndret = send(cfd, wbuf+offset,wlen,MSG_DONTWAIT);		
 					sndret>0? (wlen-=sndret,offset+=sndret):(rept--);
 				}
 				/*move not sended data to buf header*/
+				pclt->ci_wlen = wlen;
 				if(wlen>0){
-					pclt->ci_wlen = wlen;
 					memcpy(wbuf,wbuf+offset,wlen);
 				}
 
 				sem_post(&pclt->ci_sem);
+				//printf("[%d] is unlocked by send thread\n", cfd);
 			}
 		}
-
 	}
+	pthread_exit(NULL);
 }
 
 #undef __CONN_TCP_C__//file end

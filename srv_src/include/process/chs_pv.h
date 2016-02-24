@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 typedef struct province{
-	unsigned int pv_id;
+	char pv_id[3];
 	char pv_nm[128];
 	struct province* next;
 }PV_T;
@@ -12,7 +12,7 @@ typedef struct province{
 /*
 *according the value of pv_id,converting id to province name stored to pv_nm, the province name length is limited by the argument @pv_len
 */
-extern int id_to_province(unsigned int pv_id, char* pv_nm, ssize_t pv_len);
+extern int id_to_province(const char* pv_id, char* pv_nm, ssize_t pv_len);
 
 /*
 *loading province info list from the file pointed to by pv_fnm */

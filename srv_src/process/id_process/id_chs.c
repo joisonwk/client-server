@@ -16,7 +16,8 @@
 * errno return -1
 */
 void id_parse(const char* id_num, int id_len, char* retstr, int *retlen){
-	int ret, curlen;
+	printf("id_num=%s, id_len=%d\n", id_num, id_len);
+	int ret, curlen = 0;
 	char cdigit = 0;
 	int pv_id, ct_id, ctr_id;
 	char nmbuf[128];
@@ -24,28 +25,33 @@ void id_parse(const char* id_num, int id_len, char* retstr, int *retlen){
 		return;
 	}
 
+	printf("%s%d\n",__func__, __LINE__);
 	ret = id_check(id_num, id_len);
+	printf("%s%d\n",__func__, __LINE__);
 	if(ret != 0){
 		snprintf(retstr, *retlen,"%s:this ID is illegal!\n", id_num);
+	}else{
+		printf("ID is right\n");
 	}
 
-	pv_id = (id_num[0]-'0')* 10 + (id_num[1]-'0');	
-	ct_id = (id_num[2]-'0')* 10 + (id_num[3]-'0');	
-	ctr_id = (id_num[4]-'0')* 10 + (id_num[5]-'0');	
-	curlen += id_to_province(pv_id, retstr, *retlen-curlen);
-	curlen += id_to_city(ct_id, retstr+curlen, *retlen-curlen);
-	curlen += id_to_country(ctr_id, retstr+curlen, *retlen-curlen);
+	curlen += id_to_province(id_num, retstr, *retlen-curlen);
+	printf("PV=%s, curlen=%d\n", retstr, curlen);
+	curlen += id_to_city(id_num+2, retstr+curlen, *retlen-curlen);
+	printf("CT=%s\n", retstr);
+	curlen += id_to_country(id_num+4, retstr+curlen, *retlen-curlen);
 	*retlen = curlen;
+	printf("id_address[%s]\n", retstr);
 	return;	
 }
 
 /**/
 void id_parse_deal(CLT_T* pclt){
+	printf("%s\n", __func__);
 	char id_buf[CHS_ID_LEN], addr_buf[CHS_ADDR_LEN];
 	int id_len = CHS_ID_LEN;
 	int addrlen = CHS_ADDR_LEN;
 	
-	if(pclt==NULL || !sem_trywait(&pclt->ci_sem)){
+	if(pclt==NULL || sem_trywait(&pclt->ci_sem)){
 		return; 
 	}
 	if(pclt->ci_rlen<CHS_ID_LEN){	//length is not enough return err message
@@ -58,15 +64,18 @@ void id_parse_deal(CLT_T* pclt){
 	}else if(pclt->ci_rlen >= CHS_ID_LEN){
 		pclt->ci_rlen -= CHS_ID_LEN;	
 		memcpy(id_buf, pclt->ci_rbuf,CHS_ID_LEN);
-		memcpy(pclt->ci_rbuf, pclt->ci_rbuf+CHS_ID_LEN, pclt->ci_rlen);	//move dealed data
+		if(pclt->ci_rlen>0)
+			memcpy(pclt->ci_rbuf, pclt->ci_rbuf+CHS_ID_LEN, pclt->ci_rlen);	//move dealed data
 		sem_post(&pclt->ci_sem);
 		id_parse(id_buf, CHS_ID_LEN, addr_buf, &addrlen);	
 		int i;
 		for(i=10;i>0;i--){
-			if(sem_trywait(&pclt->ci_sem)){
+			if(!sem_trywait(&pclt->ci_sem)){
 				int wleft= MAX_SEND_LEN-pclt->ci_wlen;
 				int cplen = wleft<addrlen? wleft:addrlen;
 				memcpy(pclt->ci_wbuf+pclt->ci_wlen,addr_buf, cplen);
+				pclt->ci_wlen += cplen;
+				printf("[send] [%s]\n", pclt->ci_wbuf);
 				sem_post(&pclt->ci_sem);
 				break;
 			}else{
@@ -106,15 +115,18 @@ int id_lastnum_chk_ok(const char* id_num){
 
 /*initiate success return 0, else return -1*/
 int id_parse_init(void* pm_ctr){
+	printf("id parse init start\n");
 	int ret = -1;
 	char pv_fn[128] = {0};
 	char ct_fn[128] = {0};
 	char ctr_fn[128] = {0};
 	
 	ssize_t off_set = 0;
-	off_set += snprintf(pv_fn, 128, pm_ctr);
-	off_set += snprintf(ct_fn, 128, pm_ctr+off_set);
-	snprintf(ctr_fn, 128, pm_ctr+off_set);
+	sscanf(pm_ctr, "%s %s %s", pv_fn, ct_fn, ctr_fn);
+	printf("pv_filename=%s, ct_filename=%s, ctr_filename=%s\n", pv_fn , ct_fn, ctr_fn);
+	pv_fn[strlen(pv_fn)]=0;
+	ct_fn[strlen(ct_fn)]=0;
+	ctr_fn[strlen(ctr_fn)]=0;
 	
 	/*province info initiate*/	
 	if(province_init(pv_fn)){
@@ -155,8 +167,8 @@ void id_parse_exit(void){
 }
 
 
-static PM_T id_process_method = {
-	.pm_ctrl_file = ID_CTRL_FILES, 
+PM_T id_process_method = {
+	.pm_ctrl_file = "pv.conf ct.conf ctr.conf", 
 	.pm_header = "IDTOADDR",
 	.pm_timeval.tv_sec = 0,
 	.pm_stat = PMS_UNINIT, 
@@ -166,6 +178,7 @@ static PM_T id_process_method = {
 };
 
 PM_T* get_id_process_method(void){
+	printf("conf = %s, header=%s\n", id_process_method.pm_ctrl_file, id_process_method.pm_header);
 	return &id_process_method;
 }
 

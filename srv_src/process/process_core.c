@@ -12,8 +12,9 @@
 #include <process/process_core.h>
 
 #define MAX_METHOD	20
+extern PM_T id_process_method;
 static PM_T* ppm_tab[MAX_METHOD] = {
-	get_id_process_method,
+	&id_process_method,
 };
 
 
@@ -55,8 +56,15 @@ int process_deal(CLT_T* pclt){
 			}
 
 			if(ppm->pm_deal){
-				ppm->pm_deal(pclt);
-				return 0;
+				if(!sem_trywait(&pclt->ci_sem)){
+					printf("[%s][%s]\n",__func__,ppm->pm_header);
+					pclt->ci_rlen -= hlen;
+					memcpy(pclt->ci_rbuf,pclt->ci_rbuf+hlen,pclt->ci_rlen);
+					sem_post(&pclt->ci_sem);
+					printf("[process_deal][ID][%s]\n",pclt->ci_rbuf);
+					ppm->pm_deal(pclt);
+					return 0;
+				}
 			}
 		}
 	}
@@ -76,6 +84,7 @@ void* process_thread(void* pdata){
 	}
 	pclt_head = &psd->sd_clt_head;
 	post_server();
+	process_init();
 	while(1){
 		list_for_each_entry(pclt,pclt_head,ci_list){
 			if(pclt->ci_rlen>0){

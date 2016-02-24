@@ -34,9 +34,11 @@ int main(int argc, char* argv[]){
 	}
 
 	while(1){
-		if(gets(id_buf)){
-			snprintf(id_buf,ID_BUF_LEN,"IDTOADDR%s",id_buf);
+		if(gets(get_buf)){
+			bzero(id_buf, sizeof(id_buf));
+			snprintf(id_buf,ID_BUF_LEN,"IDTOADDR%s",get_buf);
 			getlen = strlen(id_buf);
+			printf("id_buf = %s\n", id_buf);
 			if(getlen>0){
 				getlen = strlen(id_buf);
 				if(!id_to_addr(id_buf,addr_buf,&addrlen)){

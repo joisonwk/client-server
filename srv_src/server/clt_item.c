@@ -106,7 +106,7 @@ void clt_init(CLT_T* pclt){
 }
 /*release client*/
 void clt_release(CLT_T* pclt){
-	if(pclt==NULL || !sem_trywait(&pclt->ci_sem)){
+	if(pclt==NULL || sem_trywait(&pclt->ci_sem)){
 		return;
 	}
 	sem_close(&pclt->ci_sem);
