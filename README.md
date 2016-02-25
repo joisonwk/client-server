@@ -2,4 +2,4 @@
 ## client: implement the socket client port
 ## server: implement the socket server port
 ## process: data process
-## test: some test shell scripts
+## test: some test program 

@@ -11,7 +11,7 @@ int sockfd;
 
 int tcp_init(struct conn_item* pdata)
 {
-	printf("tcp init start\n");
+	//printf("tcp init start\n");
     	struct sockaddr_in* paddr;
 	pci = pdata;
 	
@@ -43,7 +43,7 @@ int tcp_init(struct conn_item* pdata)
 }
     
 int id_to_addr(const char* id_buf,char* addr_buf, int* paddrlen){
-	printf("socket fd = %d, id_buf=%s\n",sockfd, id_buf);
+	//printf("socket fd = %d, id_buf=%s\n",sockfd, id_buf);
     	if(send(sockfd,id_buf,strlen(id_buf),0)==-1)
     	{
 		perror("send failed");
@@ -60,7 +60,6 @@ int id_to_addr(const char* id_buf,char* addr_buf, int* paddrlen){
         	perror("recv");
 		return -2;
     	}
-	printf("id address = %s\n", addr_buf);
 
     	addr_buf[*paddrlen] = '\0'; 
     	return 0;
