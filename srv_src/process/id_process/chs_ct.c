@@ -6,7 +6,7 @@
 
 static CT_T* pct_head = NULL;
 /*ct_id to city name*/
-int id_to_city(const char* ct_id, char* ct_nm, ssize_t ct_len){
+int id_to_city(const char* ct_id, char* ct_nm, int ct_len){
 	int cnlen = 0;
 	
 	printf("%s%d", __func__, __LINE__);

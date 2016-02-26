@@ -127,27 +127,33 @@ void* tcp_thread(void* pdata){
 		pclt_item = clt_malloc();
 		if(pclt_item == NULL){
 			char tbuf[128] = "server have no memory";
+			printf("allocate client memory failed\n");
 			send(clt_fd, tbuf, strlen(tbuf), 0);
 			close(clt_fd);
 			continue;
 		}
 
+		printf("%s%d\n", __func__, __LINE__);
 		clt_init(pclt_item);
 
+		printf("%s%d\n", __func__, __LINE__);
 		pclt_item->ci_cfd = clt_fd;
 		pclt_item->ci_type = ECT_TCP;
 		/*set tcp client socket as noblocking*/
 		int flag = fcntl(clt_fd, F_GETFD, NULL);
 		flag |= O_NONBLOCK;
+		printf("%s%d\n", __func__, __LINE__);
 		fcntl(clt_fd, F_SETFD,&flag);
 
 		/*insert client to list failed close the client socket and release it*/
+		printf("%s%d\n", __func__, __LINE__);
 		if(clt_add(pclt_item)){
 			clt_release(pclt_item);
 			free(pclt_item);
 			close(clt_fd);
 			continue;
 		}
+		printf("%s%d\n", __func__, __LINE__);
 		printf("add client %d to list success\n", clt_fd);
 		
 		pclt_item->ci_cfd = clt_fd;

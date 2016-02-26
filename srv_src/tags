@@ -4,7 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-CC	Makefile	/^CC = gcc$/;"	m
+CC	Makefile	/^CC = \/home\/joison\/invengo-work\/usr\/local\/arm\/3.4.1\/bin\/arm-linux-gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS = -pthread -I.\/include$/;"	m
 CHS_ADDR_LEN	include/process/id_chs.h	10;"	d
 CHS_ID_LEN	include/process/id_chs.h	9;"	d
@@ -40,13 +40,13 @@ TCP_CLTS	include/conn/conn_common.h	7;"	d
 TCP_PORT	include/conn/conn_common.h	6;"	d
 UDP_PORT	include/conn/conn_common.h	10;"	d
 __CHS_CTR_C__	process/id_process/chs_ctr.c	2;"	d	file:
-__CHS_CTR_C__	process/id_process/chs_ctr.c	96;"	d	file:
+__CHS_CTR_C__	process/id_process/chs_ctr.c	93;"	d	file:
 __CHS_CTR_H__	include/process/chs_ctr.h	3;"	d
 __CHS_CT_C__	process/id_process/chs_ct.c	2;"	d	file:
-__CHS_CT_C__	process/id_process/chs_ct.c	97;"	d	file:
+__CHS_CT_C__	process/id_process/chs_ct.c	94;"	d	file:
 __CHS_CT_H__	include/process/chs_ct.h	3;"	d
 __CHS_PV_C__	process/id_process/chs_pv.c	2;"	d	file:
-__CHS_PV_C__	process/id_process/chs_pv.c	95;"	d	file:
+__CHS_PV_C__	process/id_process/chs_pv.c	89;"	d	file:
 __CHS_PV_H__	include/process/chs_pv.h	3;"	d
 __CLT_ITEM_C__	server/clt_item.c	128;"	d	file:
 __CLT_ITEM_C__	server/clt_item.c	2;"	d	file:
@@ -60,7 +60,7 @@ __CONN_TCP_H__	include/server/tcpserver.h	3;"	d
 __CONN_UDP_H__	include/conn/conn_udp.h	2;"	d
 __C_KERNEL_H__	include/util/c_kernel.h	2;"	d
 __C_LIST_H__	include/util/c_list.h	2;"	d
-__ID_CHS_C__	process/id_process/id_chs.c	185;"	d	file:
+__ID_CHS_C__	process/id_process/id_chs.c	184;"	d	file:
 __ID_CHS_C__	process/id_process/id_chs.c	2;"	d	file:
 __ID_CHS_H__	include/process/id_chs.h	3;"	d
 __PROCESS_CORE_C__	process/process_core.c	2;"	d	file:
@@ -118,9 +118,9 @@ id_parse_exit	process/id_process/id_chs.c	/^void id_parse_exit(void){$/;"	f
 id_parse_init	process/id_process/id_chs.c	/^int id_parse_init(void* pm_ctr){$/;"	f
 id_process_method	process/id_process/id_chs.c	/^PM_T id_process_method = {$/;"	v
 id_ret	include/process/id_chs.h	/^	char id_ret[CHS_ADDR_LEN];$/;"	m	struct:id_data
-id_to_city	process/id_process/chs_ct.c	/^int id_to_city(const char* ct_id, char* ct_nm, ssize_t ct_len){$/;"	f
-id_to_country	process/id_process/chs_ctr.c	/^int id_to_country(const char* ctr_id, char* ctr_nm, ssize_t ctr_len){$/;"	f
-id_to_province	process/id_process/chs_pv.c	/^int id_to_province(const char* pv_id, char* pv_nm, ssize_t pv_len){$/;"	f
+id_to_city	process/id_process/chs_ct.c	/^int id_to_city(const char* ct_id, char* ct_nm, int ct_len){$/;"	f
+id_to_country	process/id_process/chs_ctr.c	/^int id_to_country(const char* ctr_id, char* ctr_nm, int ctr_len){$/;"	f
+id_to_province	process/id_process/chs_pv.c	/^int id_to_province(const char* pv_id, char* pv_nm, int pv_len){$/;"	f
 list_add	include/util/c_list.h	/^static inline void list_add(struct list_head *new, struct list_head *head)$/;"	f
 list_add_tail	include/util/c_list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head)$/;"	f
 list_del	include/util/c_list.h	/^static inline void list_del(struct list_head *entry)$/;"	f

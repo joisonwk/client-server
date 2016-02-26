@@ -6,7 +6,7 @@
 
 static CTR_T* ctr_head = NULL;
 /*ctr_id to country name*/
-int id_to_country(const char* ctr_id, char* ctr_nm, ssize_t ctr_len){
+int id_to_country(const char* ctr_id, char* ctr_nm, int ctr_len){
 	int cnlen = 0;
 	CTR_T* ctr_tmp = ctr_head;
 	while(NULL != ctr_tmp){

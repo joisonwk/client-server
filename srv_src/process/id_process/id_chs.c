@@ -120,7 +120,7 @@ int id_parse_init(void* pm_ctr){
 	char ct_fn[128] = {0};
 	char ctr_fn[128] = {0};
 	
-	ssize_t off_set = 0;
+	int off_set = 0;
 	sscanf(pm_ctr, "%s %s %s", pv_fn, ct_fn, ctr_fn);
 	printf("pv_filename=%s, ct_filename=%s, ctr_filename=%s\n", pv_fn , ct_fn, ctr_fn);
 	pv_fn[strlen(pv_fn)]=0;

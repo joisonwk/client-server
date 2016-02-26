@@ -69,6 +69,12 @@ int process_deal(CLT_T* pclt){
 		}
 	}
 
+	if(!sem_trywait(&pclt->ci_sem)){
+		sprintf(pclt->ci_wbuf, "ERROR DATA");	
+		pclt->ci_wlen = strlen(pclt->ci_wbuf);
+		sem_post(&pclt->ci_sem);
+	}
+
 	return -1;
 }
 
@@ -89,6 +95,10 @@ void* process_thread(void* pdata){
 		list_for_each_entry(pclt,pclt_head,ci_list){
 			if(pclt->ci_rlen>0){
 				process_deal(pclt);
+				if(!sem_trywait(&pclt->ci_sem)){
+					pclt->ci_rlen = 0;	
+					sem_post(&pclt->ci_sem);
+				}
 				clt_fresh(pclt);
 			}
 		}

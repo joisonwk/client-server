@@ -12,7 +12,7 @@ typedef struct country{
 /*
 *according the value of ctr_id,converting id to country name stored to ctr_nm, the country name length is limited by the argument @ctr_len
 */
-extern int id_to_country(const char* ctr_id, char* ctr_nm, ssize_t ctr_len);
+extern int id_to_country(const char* ctr_id, char* ctr_nm, int ctr_len);
 
 /*
 *loading country info list from the file pointed to by ctr_fnm */

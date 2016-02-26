@@ -123,6 +123,7 @@ int clt_add(CLT_T* pclt){
 	
 	list_add(&pclt->ci_list,plh);
 	post_server();
+	return 0;
 }
 
 #undef __CLT_ITEM_C__

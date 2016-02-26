@@ -7,7 +7,7 @@
 
 static PV_T* pv_head = NULL;
 /*pv_id to province name*/
-int id_to_province(const char* pv_id, char* pv_nm, ssize_t pv_len){
+int id_to_province(const char* pv_id, char* pv_nm, int pv_len){
 	int pnlen= 0;
 	PV_T* pv_tmp = pv_head;
 	while(NULL != pv_tmp){

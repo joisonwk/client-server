@@ -13,7 +13,7 @@ typedef struct city{
 /*
 *according the value of ct_id,converting id to city name stored to ct_nm, the city name length is limited by the argument @ct_len
 */
-extern int id_to_city(const char* ct_id, char* ct_nm, ssize_t ct_len);
+extern int id_to_city(const char* ct_id, char* ct_nm, int ct_len);
 
 /*
 *loading city info list from the file pointed to by ct_fnm */
