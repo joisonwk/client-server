@@ -16,6 +16,7 @@ struct server_data{
 	struct tcp_data sd_tcpconf;	//
 	struct udp_data sd_udpconf;
 
+	struct list_head sd_cmdinfo_head;
 	struct list_head sd_clt_head;	//client list head
 	struct list_head sd_pm_head;	//process method list head
 

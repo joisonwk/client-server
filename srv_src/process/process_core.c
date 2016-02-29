@@ -2,6 +2,7 @@
 #define __PROCESS_CORE_C__
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 #include <pthread.h>
 #include <sys/time.h>
@@ -21,10 +22,28 @@ static PM_T* ppm_tab[MAX_METHOD] = {
 /**/
 int process_init(void){
 	int i;
+	struct server_data* psd = NULL;
+	psd = get_server();	
+	post_server();
+
 	for(i=0;i<MAX_METHOD;i++){
 		PM_T* ppm = ppm_tab[i];
+		struct cmd_info *pci = NULL;
 		if(NULL==ppm){
 			continue;
+		}
+		/*cmd header init*/
+		if(ppm->pm_header != NULL){
+			pci = malloc(sizeof(struct cmd_info));			
+			if(NULL==pci){
+				perror("init cmd head failed");
+				return -1;
+			}
+			bzero(pci, sizeof(struct cmd_info));
+			LIST_HEAD_INIT(pci->ci_list);
+			memcpy(pci->ci_header,ppm->pm_header, strlen(ppm->pm_header));
+			list_add(&pci->ci_list, &psd->sd_cmdinfo_head);
+			ppm->pm_pcmd = pci;	
 		}
 		if(ppm->pm_init){
 			if(!ppm->pm_init(ppm->pm_ctrl_file))
@@ -141,14 +160,27 @@ void process_flush(void){
 
 void process_exit(void){
 	int i;
+	struct cmd_info* pcmd = NULL;
 	for(i=0;i<MAX_METHOD;i++){
 		if(ppm_tab[i] == NULL)
 			continue;
+		/*release the cmd*/
+		pcmd = ppm_tab[i]->pm_pcmd;
+		if(pcmd){
+			list_del(&pcmd->ci_list);
+			free(pcmd);
+		}
+
 		if(ppm_tab[i]->pm_stat == PMS_INITED && ppm_tab[i]->pm_exit){
 			ppm_tab[i]->pm_exit();
 			ppm_tab[i]->pm_stat = PMS_UNINIT;
 		}
 	}
+}
+
+/**/
+int cmd_select(CLT_T* pclt){
+	strspn();
 }
 
 #undef __PROCESS_SERVER_C__

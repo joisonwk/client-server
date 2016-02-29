@@ -21,6 +21,7 @@ typedef struct clt_item{
 	struct timeval ci_last_time;
 	struct timeval ci_timeval;	//ci_timeval=0 never timeout
 	#define MAX_TIMEVAL	3600 	//1 hour 
+	//unsigned int ci_step_flag;	//recording deal steps
 	char ci_rbuf[MAX_RECV_LEN];
 	size_t ci_rlen;
 	char ci_wbuf[MAX_SEND_LEN];

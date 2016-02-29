@@ -4,6 +4,16 @@
 #include <semaphore.h>
 #include <common.h>
 #include <server/clt_item.h>
+#include <util/c_list.h>
+#define MAX_CMD_HEADER_LEN 20
+
+struct cmd_info {
+	char ci_header[MAX_CMD_HEADER_LEN];	//cmd header
+	int ci_pm_pos;	//cmd process method index
+	char ci_offset;	//cmd recive buf offset
+	unsigned ci_ret; //cmd deal result
+	struct list_head ci_list;
+};
 
 enum pm_stat {
 	PMS_UNINIT,
@@ -20,6 +30,7 @@ typedef struct process_method{
 	enum pm_stat pm_stat;
 	struct timeval pm_lasttime;	
 	struct timeval pm_timeval;	//if not set the method will not be released
+	struct cmd_info* pm_pcmd;
 	PM_INIT pm_init;
 	PM_DEAL pm_deal;
 	PM_EXIT pm_exit;
@@ -36,6 +47,9 @@ static int process_init(void);
 static int process_deal(CLT_T* pclt);
 /*process method add*/
 static void process_exit(void);
+
+/*according the cmd data selecte valid cmd and match the method*/
+static int cmd_select(CLT_T* pclt);
 
 extern void* process_thread(void* pdata);
 

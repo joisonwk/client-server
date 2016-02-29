@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <process/process_core.h>
+#include <process/cmd_header.h>
 #include <process/id_chs.h>
 #include <process/chs_pv.h>
 #include <process/chs_ct.h>
@@ -168,7 +169,7 @@ void id_parse_exit(void){
 
 PM_T id_process_method = {
 	.pm_ctrl_file = "pv.conf ct.conf ctr.conf", 
-	.pm_header = "IDTOADDR",
+	.pm_header = ID_HEADER,
 	.pm_timeval.tv_sec = 0,
 	.pm_stat = PMS_UNINIT, 
 	.pm_init = (PM_INIT)id_parse_init,
