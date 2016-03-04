@@ -10,7 +10,8 @@
 struct cmd_info {
 	char ci_header[MAX_CMD_HEADER_LEN];	//cmd header
 	int ci_pm_pos;	//cmd process method index
-	char ci_offset;	//cmd recive buf offset
+	char* ci_offset;	//cmd recive buf offset
+	unsigned int ci_left;	//left data
 	unsigned ci_ret; //cmd deal result
 	struct list_head ci_list;
 };
@@ -21,7 +22,7 @@ enum pm_stat {
 };
 
 typedef int (*PM_INIT)(void* path);
-typedef void (*PM_DEAL)(CLT_T* pclt);
+typedef void (*PM_DEAL)(CLT_T* pclt, struct cmd_info* pcmd_info);
 typedef void (*PM_EXIT)(void);
 
 typedef struct process_method{
@@ -49,7 +50,7 @@ static int process_deal(CLT_T* pclt);
 static void process_exit(void);
 
 /*according the cmd data selecte valid cmd and match the method*/
-static int cmd_select(CLT_T* pclt);
+static int cmd_select(CLT_T* pclt, struct list_head* pcmd_head);
 
 extern void* process_thread(void* pdata);
 

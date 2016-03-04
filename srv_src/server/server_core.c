@@ -38,6 +38,7 @@ int server_init(void){
 	sd->sd_tcpconf.tcp_port = TCP_PORT;
 	sem_init(&sd->sd_sem, 0, 1);	//initiate the semaphere with 1 value
 	INIT_LIST_HEAD(&sd->sd_clt_head);	
+	INIT_LIST_HEAD(&sd->sd_cmdinfo_head);
 	//INIT_LIST_HEAD(&sd->sd_pm_head);	uncomplete
 
 	return 0;

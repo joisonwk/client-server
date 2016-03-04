@@ -34,14 +34,15 @@ int process_init(void){
 		}
 		/*cmd header init*/
 		if(ppm->pm_header != NULL){
-			pci = malloc(sizeof(struct cmd_info));			
+			pci = (struct cmd_info*)malloc(sizeof(struct cmd_info));			
 			if(NULL==pci){
 				perror("init cmd head failed");
 				return -1;
 			}
 			bzero(pci, sizeof(struct cmd_info));
-			LIST_HEAD_INIT(pci->ci_list);
+			INIT_LIST_HEAD(&pci->ci_list);
 			memcpy(pci->ci_header,ppm->pm_header, strlen(ppm->pm_header));
+			pci->ci_pm_pos = i;
 			list_add(&pci->ci_list, &psd->sd_cmdinfo_head);
 			ppm->pm_pcmd = pci;	
 		}
@@ -51,16 +52,32 @@ int process_init(void){
 			method_fresh(ppm);
 		}
 	}
+
 	return 0;
 }
 
 /*if dealed return 0, else return -1*/
 int process_deal(CLT_T* pclt){
-	if(pclt==NULL){
-		return 0;	//no data to deal,return dealed flag
+	struct server_data *psd = NULL;
+	struct list_head* pcmd_head = NULL;
+	struct cmd_info* pcmd_info = NULL;
+	psd = get_server();
+	if(psd==NULL || pclt==NULL){
+		return -1;
 	}
+	pcmd_head = &psd->sd_cmdinfo_head;
+	post_server();
 	/*match method*/
 	int i;	
+
+	/*select and deal*/
+	cmd_select(pclt, pcmd_head);
+
+	/*clean client recive buffer*/
+	pclt->ci_rlen = 0;
+	bzero(pclt->ci_rbuf, sizeof(pclt->ci_rbuf));
+
+#if 0	//old deal method
 	for(i=0;i<MAX_METHOD;i++){
 		PM_T* ppm = ppm_tab[i];
 		if(NULL == ppm)
@@ -87,6 +104,7 @@ int process_deal(CLT_T* pclt){
 			}
 		}
 	}
+#endif
 
 	if(!sem_trywait(&pclt->ci_sem)){
 		sprintf(pclt->ci_wbuf, "ERROR DATA");	
@@ -178,9 +196,27 @@ void process_exit(void){
 	}
 }
 
-/**/
-int cmd_select(CLT_T* pclt){
-	strspn();
+/*select cmd from client recieved data*/
+int cmd_select(CLT_T* pclt, struct list_head* pcmd_head){
+	struct cmd_info *pcmd = NULL;
+	if(pclt==NULL || pcmd_head == NULL || pclt->ci_rlen==0){
+		return -1;
+	}
+	
+	char* offset = 0;
+	list_for_each_entry(pcmd, pcmd_head, ci_list){
+		offset = strstr(pclt->ci_rbuf, pcmd->ci_header);
+		if(offset==NULL) continue;
+		offset += strlen(pcmd->ci_header);
+		pcmd->ci_offset = offset;
+		pcmd->ci_left = pclt->ci_rlen-(offset-pclt->ci_rbuf);
+		if(ppm_tab[pcmd->ci_pm_pos] && ppm_tab[pcmd->ci_pm_pos]->pm_deal){
+			ppm_tab[pcmd->ci_pm_pos]->pm_deal(pclt, pcmd);
+		}
+		if(pcmd->ci_left<=0) break;	//deal complete
+
+	}
+	return 0;
 }
 
 #undef __PROCESS_SERVER_C__

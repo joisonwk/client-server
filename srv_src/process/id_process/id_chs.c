@@ -46,7 +46,7 @@ void id_parse(const char* id_num, int id_len, char* retstr, int *retlen){
 }
 
 /**/
-void id_parse_deal(CLT_T* pclt){
+void id_parse_deal(CLT_T* pclt, struct cmd_info* pcmd){
 	char id_buf[CHS_ID_LEN], addr_buf[CHS_ADDR_LEN];
 	int id_len = CHS_ID_LEN;
 	int addrlen = CHS_ADDR_LEN;
@@ -54,18 +54,15 @@ void id_parse_deal(CLT_T* pclt){
 	if(pclt==NULL || sem_trywait(&pclt->ci_sem)){
 		return; 
 	}
-	if(pclt->ci_rlen<CHS_ID_LEN){	//length is not enough return err message
-		pclt->ci_rlen = 0;
+	if(pcmd->ci_left<CHS_ID_LEN){	//length is not enough return err message
 		pclt->ci_wlen += snprintf(pclt->ci_wbuf+pclt->ci_wlen, 
 			MAX_SEND_LEN-pclt->ci_wlen,
 			"ERR:ID length is not enough\n");
 		sem_post(&pclt->ci_sem);
 		return;
-	}else if(pclt->ci_rlen >= CHS_ID_LEN){
-		pclt->ci_rlen -= CHS_ID_LEN;	
-		memcpy(id_buf, pclt->ci_rbuf,CHS_ID_LEN);
-		if(pclt->ci_rlen>0)
-			memcpy(pclt->ci_rbuf, pclt->ci_rbuf+CHS_ID_LEN, pclt->ci_rlen);	//move dealed data
+	}else{
+	
+		memcpy(id_buf, pcmd->ci_offset,CHS_ID_LEN);
 		sem_post(&pclt->ci_sem);
 		id_parse(id_buf, CHS_ID_LEN, addr_buf, &addrlen);	
 		int i;

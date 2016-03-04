@@ -22,7 +22,7 @@ static int id_lastnum_chk_ok(const char* id_num);
 static int id_check(const char* id_num, unsigned int idlen);
 
 static int id_parse_init(void* id_conf);
-static void id_parse_deal(CLT_T* pd);
+static void id_parse_deal(CLT_T* pclt, struct cmd_info* pcmd);
 static void id_parse_exit(void);
 
 extern PM_T* get_id_process_method(void);
