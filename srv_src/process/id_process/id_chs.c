@@ -50,36 +50,26 @@ void id_parse_deal(CLT_T* pclt){
 	int id_len = CHS_ID_LEN;
 	int addrlen = CHS_ADDR_LEN;
 	
-	if(pclt==NULL || sem_trywait(&pclt->ci_sem)){
-		return; 
-	}
 	if(pclt->ci_rlen<CHS_ID_LEN){	//length is not enough return err message
 		pclt->ci_rlen = 0;
 		pclt->ci_wlen += snprintf(pclt->ci_wbuf+pclt->ci_wlen, 
 			MAX_SEND_LEN-pclt->ci_wlen,
 			"ERR:ID length is not enough\n");
-		sem_post(&pclt->ci_sem);
 		return;
 	}else if(pclt->ci_rlen >= CHS_ID_LEN){
 		pclt->ci_rlen -= CHS_ID_LEN;	
 		memcpy(id_buf, pclt->ci_rbuf,CHS_ID_LEN);
 		if(pclt->ci_rlen>0)
 			memcpy(pclt->ci_rbuf, pclt->ci_rbuf+CHS_ID_LEN, pclt->ci_rlen);	//move dealed data
-		sem_post(&pclt->ci_sem);
 		id_parse(id_buf, CHS_ID_LEN, addr_buf, &addrlen);	
 		int i;
 		for(i=10;i>0;i--){
-			if(!sem_trywait(&pclt->ci_sem)){
-				int wleft= MAX_SEND_LEN-pclt->ci_wlen;
-				int cplen = wleft<addrlen? wleft:addrlen;
-				memcpy(pclt->ci_wbuf+pclt->ci_wlen,addr_buf, cplen);
-				pclt->ci_wlen += cplen;
-				printf("[send] [%s]\n", pclt->ci_wbuf);
-				sem_post(&pclt->ci_sem);
-				break;
-			}else{
-				usleep(1000);	
-			}
+			int wleft= MAX_SEND_LEN-pclt->ci_wlen;
+			int cplen = wleft<addrlen? wleft:addrlen;
+			memcpy(pclt->ci_wbuf+pclt->ci_wlen,addr_buf, cplen);
+			pclt->ci_wlen += cplen;
+			printf("[send] [%s]\n", pclt->ci_wbuf);
+			break;
 		}
 	}
 

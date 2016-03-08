@@ -10,6 +10,7 @@
 #include <util/c_list.h>
 #include <process/id_chs.h>
 #include <process/process_core.h>
+#include <process/statistics.h>
 
 #define MAX_METHOD	20
 extern PM_T id_process_method;
@@ -56,24 +57,20 @@ int process_deal(CLT_T* pclt){
 			}
 
 			if(ppm->pm_deal){
-				if(!sem_trywait(&pclt->ci_sem)){
-					printf("[%s][%s]\n",__func__,ppm->pm_header);
-					pclt->ci_rlen -= hlen;
-					memcpy(pclt->ci_rbuf,pclt->ci_rbuf+hlen,pclt->ci_rlen);
-					sem_post(&pclt->ci_sem);
-					printf("[process_deal][ID][%s]\n",pclt->ci_rbuf);
-					ppm->pm_deal(pclt);
-					return 0;
-				}
+				printf("[%s][%s]\n",__func__,ppm->pm_header);
+				pclt->ci_rlen -= hlen;
+				memcpy(pclt->ci_rbuf,pclt->ci_rbuf+hlen,pclt->ci_rlen);
+				printf("[process_deal][RECV][%s]\n",pclt->ci_rbuf);
+				ppm->pm_deal(pclt);
+				printf("[process_deal][SEND][%s]\n", pclt->ci_wbuf);
+				return 0;
 			}
 		}
 	}
 
-	if(!sem_trywait(&pclt->ci_sem)){
-		sprintf(pclt->ci_wbuf, "ERROR DATA");	
-		pclt->ci_wlen = strlen(pclt->ci_wbuf);
-		sem_post(&pclt->ci_sem);
-	}
+	/*answer error deal*/
+	sprintf(pclt->ci_wbuf, "ERROR FRAME");	
+	pclt->ci_wlen = strlen(pclt->ci_wbuf);
 
 	return -1;
 }
@@ -94,9 +91,14 @@ void* process_thread(void* pdata){
 	while(1){
 		list_for_each_entry(pclt,pclt_head,ci_list){
 			if(pclt->ci_rlen>0){
-				process_deal(pclt);
-				if(!sem_trywait(&pclt->ci_sem)){
+				if(!sem_wait(&pclt->ci_sem)){
+				/*statistic*/
+					save_to_file(pclt);	// save recieved data to a file 
+					printf("__%d__\n",__LINE__);
+					process_deal(pclt);
+
 					pclt->ci_rlen = 0;	
+					bzero(pclt->ci_rbuf,sizeof(pclt->ci_rbuf));
 					sem_post(&pclt->ci_sem);
 				}
 				clt_fresh(pclt);
